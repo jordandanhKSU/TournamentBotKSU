@@ -68,4 +68,5 @@ class CheckInView(discord.ui.View):
         await interaction.message.edit(embed=embed)
 
 
+
 bot.run(TOKEN)
