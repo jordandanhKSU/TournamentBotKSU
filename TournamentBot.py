@@ -1,4 +1,4 @@
-import aiosqlite # Asynchronous processing support instead of sqlite
+import aiosqlite 
 from openpyxl import load_workbook
 import asyncio
 import discord
