@@ -44,8 +44,6 @@ async def initialize_database():
         ''')
         await conn.commit()
 
-# assign bot prefix
-bot = commands.Bot(command_prefix="!", intents=intents)
 
 global_game_state = None
 class GlobalGameState:
@@ -107,51 +105,14 @@ class GlobalGameState:
             await interaction.response.send_message("Players swapped!", ephemeral=True)
 
 
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
     await initialize_database()
 
-def update_excel(discord_id, player_data):
-    try:
-        # Load the workbook and get the correct sheet
-        workbook = load_workbook(SPREADSHEET_PATH)
-        sheet_name = 'PlayerStats'
-        if sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-        else:
-            raise ValueError(f'Sheet {sheet_name} does not exist in the workbook')
-
-        # Check if the player already exists in the sheet
-        found = False
-        for row in sheet.iter_rows(min_row=2):  # Assuming the first row is headers
-            if str(row[0].value) == discord_id:  # Check if Discord ID matches
-                # Update only if there's a difference
-                for idx, key in enumerate(player_data.keys()):
-                    if row[idx].value != player_data[key]:
-                        row[idx].value = player_data[key]
-                        found = True
-                break
-
-        # If player not found, add a new row
-        if not found:
-            # Find the first truly empty row, ignoring formatting
-            empty_row_idx = sheet.max_row + 1
-            for i, row in enumerate(sheet.iter_rows(min_row=2), start=2):
-                if all(cell.value is None for cell in row):
-                    empty_row_idx = i
-                    break
-
-            # Insert the new data into the empty row
-            for idx, key in enumerate(player_data.keys(), start=1):
-                sheet.cell(row=empty_row_idx, column=idx).value = player_data[key]
-
-        # Save the workbook after updates
-        workbook.save(SPREADSHEET_PATH)
-        print(f"Spreadsheet '{SPREADSHEET_PATH}' has been updated successfully.")
-
-    except Exception as e:
-        print(f"Error updating Excel file: {e}")
 
 @bot.command()
 async def checkin(ctx):
@@ -218,6 +179,47 @@ async def resetdb(interaction: discord.Interaction):
             "Reset confirmation timed out. Please type /resetdb again if you still wish to reset the database.",
             ephemeral=True
         )
+
+def update_excel(discord_id, player_data):
+    try:
+        # Load the workbook and get the correct sheet
+        workbook = load_workbook(SPREADSHEET_PATH)
+        sheet_name = 'PlayerStats'
+        if sheet_name in workbook.sheetnames:
+            sheet = workbook[sheet_name]
+        else:
+            raise ValueError(f'Sheet {sheet_name} does not exist in the workbook')
+
+        # Check if the player already exists in the sheet
+        found = False
+        for row in sheet.iter_rows(min_row=2):  # Assuming the first row is headers
+            if str(row[0].value) == discord_id:  # Check if Discord ID matches
+                # Update only if there's a difference
+                for idx, key in enumerate(player_data.keys()):
+                    if row[idx].value != player_data[key]:
+                        row[idx].value = player_data[key]
+                        found = True
+                break
+
+        # If player not found, add a new row
+        if not found:
+            # Find the first truly empty row, ignoring formatting
+            empty_row_idx = sheet.max_row + 1
+            for i, row in enumerate(sheet.iter_rows(min_row=2), start=2):
+                if all(cell.value is None for cell in row):
+                    empty_row_idx = i
+                    break
+
+            # Insert the new data into the empty row
+            for idx, key in enumerate(player_data.keys(), start=1):
+                sheet.cell(row=empty_row_idx, column=idx).value = player_data[key]
+
+        # Save the workbook after updates
+        workbook.save(SPREADSHEET_PATH)
+        print(f"Spreadsheet '{SPREADSHEET_PATH}' has been updated successfully.")
+
+    except Exception as e:
+        print(f"Error updating Excel file: {e}")
 
 class StartGameView(discord.ui.View):
     def __init__(self, creator_id: int):
