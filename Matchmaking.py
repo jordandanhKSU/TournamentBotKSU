@@ -2,14 +2,14 @@ import random
 import math
 
 rank_weight = 1.0
-tier_weight = .7
+tier_weight = 1.0
 role_weight = .5
-win_rate_weight = .3
+win_rate_weight = .1
 
-ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
+ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond"]
 roles = ["Top", "Jungle", "Mid", "Bot", "Supp"]
 
-rank_tiers = {r: 10 - i for i, r in enumerate(ranks)}
+rank_tiers = {r: len(ranks) - i for i, r in enumerate(ranks)}
 
 explored = 0
 
@@ -37,19 +37,24 @@ class Player:
         self.assigned_role = assigned_role
     
     def calc_prowess(self):
-        if self.role_pref == self.assigned_role:
+        if self.assigned_role in self.role_pref:
             role_factor = 1
         else:
             role_factor = -1
-        prowess = ((11 - rank_tiers[self.rank]) * rank_weight) + ((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight)
+        prowess = (((11 - rank_tiers[self.rank]) * rank_weight) + ((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight))
         return round(prowess, 2)
         
 # Matchmaking Algo
 def matchmaking(players):
+    visited = set()
     random.shuffle(players)
     team1, team2 = players[:5], players[5:]
+    for i, role in enumerate(roles):
+        team1[i].set_assigned_role(role)
+        team2[i].set_assigned_role(role)
 
-    visited = set()
+    
+
     best_teams, min_team_diff = explore(team1, team2, visited)
     
     print("\nFinal Best Teams:")
@@ -71,49 +76,51 @@ def explore(team1, team2, visited):
     best_teams = (team1[:], team2[:])
 
     # Tracks different configs of teams
-    teams = zip(team1, team2)
+    teams = tuple(team1 + team2)
     if teams in visited:
         return best_teams, min_team_diff
     visited.add(teams)
 
     # Find role with highest diff
     role_diffs = [abs(team1[i].calc_prowess() - team2[i].calc_prowess()) for i in range(5)]
-    max_diff_index = role_diffs.index(max(role_diffs)) 
-
-    # Skips team if diff between players in role is too high
-    if any(diff > 3 for diff in role_diffs):
-        return best_teams, min_team_diff
+    print(role_diffs)
     
+    curr_lowest_diff = math.inf
     # swap lane with every other player on same team
     for i in range(5):
-        if i == max_diff_index:
-            continue  # Skip the same role
+        for j in range(i+1, 5):
+            if i == j:
+                continue  # Skip the same role
 
-        new_team1, new_team2 = team1[:], team2[:]
-        new_team1[max_diff_index], new_team1[i] = new_team1[i], new_team1[max_diff_index]
-        new_team2[max_diff_index], new_team2[i] = new_team2[i], new_team2[max_diff_index]
+            new_team1, new_team2 = team1, team2
+            new_team1[j], new_team1[i] = new_team1[i], new_team1[j]
+            new_team2[j], new_team2[i] = new_team2[i], new_team2[j]
 
-        new_diff = calculate_team_diff(new_team1, new_team2)
-        
-        if new_diff < min_team_diff:
-            min_team_diff = new_diff
-            best_teams = (new_team1[:], new_team2[:])
+            new_diff = calculate_team_diff(new_team1, new_team2)
 
-            # Recursively explore 
-            best_teams, min_team_diff = explore(new_team1, new_team2, visited)
+            if new_diff < curr_lowest_diff:
+                curr_lowest_diff = new_diff
+            
+            if new_diff < min_team_diff:
+                min_team_diff = new_diff
+                best_teams = (new_team1[:], new_team2[:])
+
+                # Recursively explore 
+                best_teams, min_team_diff = explore(new_team1, new_team2, visited)
     
     # swap with different team
     for i in range(5):
-        new_team1, new_team2 = team1[:], team2[:]
-        new_team1[max_diff_index], new_team2[i] = new_team2[i], new_team1[max_diff_index]
-        new_team2[max_diff_index], new_team1[i] = new_team1[i], new_team2[max_diff_index]
+        for j in range(i+1, 5):
+            new_team1, new_team2 = team1, team2
+            new_team1[j], new_team2[i] = new_team2[i], new_team1[j]
+            new_team2[j], new_team1[i] = new_team1[i], new_team2[j]
 
-        new_diff = calculate_team_diff(new_team1, new_team2)
+            new_diff = calculate_team_diff(new_team1, new_team2)
 
-        if new_diff < min_team_diff:
-            min_team_diff = new_diff
-            best_teams = (new_team1[:], new_team2[:])
-            best_teams, min_team_diff = explore(new_team1, new_team2, visited)
+            if new_diff < min_team_diff:
+                min_team_diff = new_diff
+                best_teams = (new_team1[:], new_team2[:])
+                best_teams, min_team_diff = explore(new_team1, new_team2, visited)
 
     return best_teams, min_team_diff
 
@@ -122,8 +129,8 @@ def explore(team1, team2, visited):
 def calculate_team_diff(team1, team2):
     diff = 0
     for x in range(5):
-        diff += abs(team1[x].calc_prowess() - team2[x].calc_prowess())
-    return diff
+        diff += team1[x].calc_prowess() - team2[x].calc_prowess()
+    return abs(diff)
 
 def print_team(team, name):
     print(f"\n{name}:")
