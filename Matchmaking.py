@@ -3,7 +3,7 @@ import math
 
 rank_weight = 1.0
 tier_weight = 1.0
-role_weight = .5
+role_weight = .6
 win_rate_weight = .1
 
 ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
