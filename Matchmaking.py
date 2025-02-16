@@ -6,7 +6,7 @@ tier_weight = 1.0
 role_weight = .5
 win_rate_weight = .1
 
-ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond"]
+ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
 roles = ["Top", "Jungle", "Mid", "Bot", "Supp"]
 
 rank_tiers = {r: len(ranks) - i for i, r in enumerate(ranks)}
