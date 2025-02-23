@@ -93,6 +93,7 @@ class StartGameView(discord.ui.View):
         if any(user.id == interaction.user.id for user in self.checked_in_users):
             await interaction.response.send_message("You've already checked in!", ephemeral=True)
             return
+        await databaseManager.update_username(interaction.user)
         self.checked_in_users.append(interaction.user)
         await self.update_embed(interaction)
         await interaction.response.send_message("Successfully checked in!", ephemeral=True)
@@ -216,4 +217,7 @@ class GlobalSwapControlView(discord.ui.View):
         await interaction.message.delete()
         await interaction.response.send_message("Global controls finalized.", ephemeral=True)
 
+@bot.command()
+async def link(self, interaction: discord.Interaction):
+    databaseManager.link(interaction.)
 bot.run(TOKEN)
