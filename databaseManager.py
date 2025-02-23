@@ -275,30 +275,6 @@ async def link(interaction: discord.Interaction, riot_id: str):
             ephemeral=True
         )
 
-# Function that updates user's username in the database
-async def update_username(player: discord.Member):
-    try:
-        async with aiosqlite.connect(DB_PATH) as conn:
-            # Fetch the player's current data from the database
-            async with conn.execute("SELECT DiscordUsername FROM PlayerStats WHERE DiscordID=?", (str(player.id),)) as cursor:
-                player_stats = await cursor.fetchone()
-
-            # If player exists in the database and the username is outdated, update it
-            if player_stats:
-                stored_username = player_stats[0]
-                current_username = player.display_name
-
-                if stored_username != current_username:
-                    await conn.execute(
-                        "UPDATE PlayerStats SET DiscordUsername = ? WHERE DiscordID = ?",
-                        (current_username, str(player.id))
-                    )
-                    await conn.commit()
-                    print(f"Updated username in database for {player.id} from '{stored_username}' to '{current_username}'.")
-    except Exception as e:
-        # Log the error or handle it appropriately
-        print(f"An error occurred while updating username: {e}")
-
 # function that updates a user's participation points
 async def update_points(members):
     async with aiosqlite.connect(DB_PATH) as conn:
