@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from dotenv import load_dotenv, find_dotenv
 import discord
 import aiohttp
+import asyncio
 
 load_dotenv(find_dotenv())
 DB_PATH = os.getenv('DB_PATH')
@@ -107,7 +108,7 @@ async def update_wins(winners):
         
 # code to calculate and update winrate in database
 async def update_win_rate(discord_id):
-    async with await get_db_connection(DB_PATH) as conn:
+    async with aiosqlite.connect(DB_PATH) as conn:
         async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (discord_id,)) as cursor:
             result = await cursor.fetchone()
     if result:
@@ -152,7 +153,7 @@ async def update_points(members):
 
     return {"success": updated_users, "not_found": not_found_users}
 
-async def update_username(player: discord.Member):
+async def update_username(player):
     try:
         current_username = player.display_name
         async with aiosqlite.connect(DB_PATH) as conn:
@@ -297,3 +298,44 @@ async def update_toxicity(member):
 
         return False  # User not found
 
+class Member():
+    def __init__(self, id, display_name):
+        self.id = id
+        self.display_name = display_name
+        self.roles = []
+
+async def main():
+    testPlayer = Member("257163638933159946", "biderp")
+    testPlayer2 = Member("123465671213923231", "Player2")
+    testPlayer3 = Member("123465672413123231", "Player3")
+    testPlayer4 = Member("123465671213173231", "Player4")
+    testPlayer5 = Member("123465671213120231", "Player5")
+    testPlayer6 = Member("903465671213123231", "Player6")
+    testPlayer7 = Member("120947671213123231", "Player7")
+    testPlayer8 = Member("109875671213123231", "Player8")
+    testPlayer9 = Member("123465671567823231", "Player9")
+    testPlayer10 = Member("123465671097853231", "Player10")
+    testPlayer11 = Member("123465671217563431", "Player11")
+    testPlayer12 = Member("123098273913123231", "Player12")
+
+    players = [testPlayer, testPlayer2, testPlayer3, testPlayer4, testPlayer5]
+
+    await initialize_database()
+    await update_username(testPlayer)
+    await update_username(testPlayer2)
+    await update_username(testPlayer3)
+    await update_username(testPlayer4)
+    await update_username(testPlayer5)
+    await update_username(testPlayer6)
+    await update_username(testPlayer7)
+    await update_username(testPlayer8)
+    await update_username(testPlayer9)
+    await update_username(testPlayer10)
+    await update_username(testPlayer11)
+    await update_username(testPlayer12)
+    
+    await update_toxicity(testPlayer11)
+    
+    await update_wins(players)
+
+asyncio.run(main())
