@@ -1,6 +1,5 @@
 import os
 import aiosqlite
-import asyncio
 from openpyxl import load_workbook
 from dotenv import load_dotenv, find_dotenv
 import discord
@@ -275,43 +274,6 @@ async def link(interaction: discord.Interaction, riot_id: str):
             ephemeral=True
         )
 
-# function that updates a user's participation points
-async def update_points(members):
-    async with aiosqlite.connect(DB_PATH) as conn:
-        not_found_users = []
-        updated_users = []
-
-        # Iterate through all members with Player or Volunteer roles
-        for member in members:
-            async with conn.execute("SELECT Participation, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
-                result = await cursor.fetchone()
-
-            if result:
-                participation, games_played = result
-
-                # Check if the member has the Player or Volunteer role
-                if any(role.name == "Player" for role in member.roles):
-                    # Update both Participation and GamesPlayed for Players
-                    await conn.execute(
-                        "UPDATE PlayerStats SET Participation = ?, GamesPlayed = ? WHERE DiscordID = ?",
-                        (participation + 1, games_played + 1, str(member.id))
-                    )
-                    updated_users.append(member.display_name)
-                elif any(role.name == "Volunteer" for role in member.roles):
-                    # Update only Participation for Volunteers
-                    await conn.execute(
-                        "UPDATE PlayerStats SET Participation = ? WHERE DiscordID = ?",
-                        (participation + 1, str(member.id))
-                    )
-                    updated_users.append(member.display_name)
-            else:
-                # Add users who are not found in the database to the list
-                not_found_users.append(member.display_name)
-
-        await conn.commit()
-
-    return {"success": updated_users, "not_found": not_found_users}
-
 # function that updates a user's toxicity points
 async def update_toxicity(member):
     async with aiosqlite.connect(DB_PATH) as conn:
@@ -335,49 +297,3 @@ async def update_toxicity(member):
 
         return False  # User not found
 
-# function used to update player win points    
-async def update_wins(winners):
-    async with aiosqlite.connect(DB_PATH) as conn:
-        for winner in winners:
-            # Since we already checked for existence, we can directly update
-            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.id),)) as cursor:
-                result = await cursor.fetchone()
-                if result:
-                    wins, games_played = result
-                    # Update the Wins and GamesPlayed for the player
-                    await conn.execute(
-                        "UPDATE PlayerStats SET Wins = ?, GamesPlayed = ? WHERE DiscordID = ?",
-                        (wins + 1, games_played + 1, str(winner.id))
-                    )
-                    # Update win rate for the player
-                    await update_win_rate(str(winner.id))
-
-        await conn.commit()
-        
-# code to calculate and update winrate in database
-async def update_win_rate(discord_id):
-    async with await get_db_connection() as conn:
-        async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (discord_id,)) as cursor:
-            result = await cursor.fetchone()
-    if result:
-        wins, games_played = result
-        win_rate = (wins / games_played) * 100 if games_played > 0 else 0
-        await conn.execute("UPDATE PlayerStats SET WinRate = ? WHERE DiscordID = ?", (win_rate, discord_id))
-        await conn.commit()
-
-# goes through the database and checks for discordIDs that have wins
-async def check_winners_in_db(winners):
-    not_found_users = []
-    async with aiosqlite.connect(DB_PATH) as conn:
-        for winner in winners:
-            # Check if the player exists in the database
-            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.id),)) as cursor:
-                result = await cursor.fetchone()
-
-            if not result:
-                # Add to not found list
-                not_found_users.append(winner)
-
-
-
-# probably needs changes
