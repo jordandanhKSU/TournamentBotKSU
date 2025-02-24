@@ -31,7 +31,7 @@ async def initialize_database():
                 "PlayerRank" TEXT DEFAULT 'UNRANKED',
                 "RolePreference" TEXT DEFAULT '55555',
                 PRIMARY KEY("DiscordID")
-)
+            )
         ''')
         await conn.commit()
 
@@ -75,7 +75,7 @@ def update_excel(discord_id, player_data):
 
     except Exception as e:
         print(f"Error updating Excel file: {e}")
-        
+
 async def check_winners_in_db(winners):
     not_found_users = []
     async with aiosqlite.connect(DB_PATH) as conn:
@@ -87,7 +87,7 @@ async def check_winners_in_db(winners):
             if not result:
                 # Add to not found list
                 not_found_users.append(winner)
-    
+
 async def update_wins(winners):
     async with aiosqlite.connect(DB_PATH) as conn:
         for winner in winners:
@@ -102,20 +102,18 @@ async def update_wins(winners):
                         (wins + 1, games_played + 1, str(winner.id))
                     )
                     # Update win rate for the player
-                    await update_win_rate(str(winner.id))
+                    await update_win_rate(conn, str(winner.id))
 
         await conn.commit()
-        
+
 # code to calculate and update winrate in database
-async def update_win_rate(discord_id):
-    async with aiosqlite.connect(DB_PATH) as conn:
-        async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (discord_id,)) as cursor:
-            result = await cursor.fetchone()
+async def update_win_rate(conn, discord_id):
+    async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (discord_id,)) as cursor:
+        result = await cursor.fetchone()
     if result:
         wins, games_played = result
         win_rate = (wins / games_played) * 100 if games_played > 0 else 0
         await conn.execute("UPDATE PlayerStats SET WinRate = ? WHERE DiscordID = ?", (win_rate, discord_id))
-        await conn.commit()
 
 async def update_points(members):
     async with aiosqlite.connect(DB_PATH) as conn:
