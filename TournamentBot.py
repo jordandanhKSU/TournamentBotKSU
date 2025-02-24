@@ -217,5 +217,4 @@ class GlobalSwapControlView(discord.ui.View):
         await interaction.message.delete()
         await interaction.response.send_message("Global controls finalized.", ephemeral=True)
 
-
 bot.run(TOKEN)
