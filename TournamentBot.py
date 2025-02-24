@@ -217,7 +217,4 @@ class GlobalSwapControlView(discord.ui.View):
         await interaction.message.delete()
         await interaction.response.send_message("Global controls finalized.", ephemeral=True)
 
-@bot.command()
-async def link(self, interaction: discord.Interaction):
-    databaseManager.link(interaction.)
 bot.run(TOKEN)
