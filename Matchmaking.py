@@ -2,7 +2,7 @@ import random
 import math
 
 rank_weight = 1.0
-tier_weight = 1.0
+tier_weight = 5.0
 role_weight = .6
 win_rate_weight = .1
 
@@ -41,7 +41,7 @@ class Player:
             role_factor = 1
         else:
             role_factor = 0.5
-        prowess = (((11 - rank_tiers[self.rank]) * rank_weight) + ((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight))
+        prowess = (((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight))
         return round(prowess, 2)
 
     def get_tier(self):
@@ -51,16 +51,19 @@ class Player:
 def matchmaking(players):
     min_team_diff = math.inf
     visited = set()
-    while(min_team_diff > 10):
+    explored = 0
+    best_teams = []
+    while(min_team_diff > 10 and explored < 50):
         random.shuffle(players)
         team1, team2 = players[:5], players[5:]
         for i, role in enumerate(roles):
             team1[i].set_assigned_role(role)
             team2[i].set_assigned_role(role)
-
-        
-
-        best_teams, min_team_diff = explore(team1, team2, visited)
+        curr_teams, curr_team_diff = explore(team1, team2, visited)
+        if curr_team_diff < min_team_diff:
+            min_team_diff = curr_team_diff
+            best_teams = curr_teams
+        explored += 1
     
     print("\nFinal Best Teams:")
     print_team(best_teams[0], "Team 1")
@@ -87,8 +90,8 @@ def explore(team1, team2, visited):
     visited.add(teams)
 
     # Find role with highest diff
-    role_diffs = [abs(team1[i].calc_prowess() - team2[i].calc_prowess()) for i in range(5)]
-    print(role_diffs)
+    # role_diffs = [abs(team1[i].calc_prowess() - team2[i].calc_prowess()) for i in range(5)]
+    # print(role_diffs)
     
     # swap lane with every other player on same team
     for i in range(5):
