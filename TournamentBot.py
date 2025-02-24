@@ -1,8 +1,9 @@
 from openpyxl import load_workbook
 import discord
 from discord.ext import commands
+from discord import app_commands
 import os
-from dotenv import load_dotenv, find_dotenv
+from dotenv import load_dotenv, find_dotenv, set_key
 import databaseManager
 
 load_dotenv(find_dotenv())
@@ -10,12 +11,170 @@ load_dotenv(find_dotenv())
 TOKEN = os.getenv('DISCORD_TOKEN')
 SPREADSHEET_PATH = os.path.abspath(os.getenv('SPREADSHEET_PATH'))
 DB_PATH = os.getenv('DB_PATH')
-
+DISCORD_GUILD_ID = int(os.getenv('DISCORD_GUILD_ID'))
+MY_GUILD = discord.Object(id=DISCORD_GUILD_ID)
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
 global_game_state = None
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    await databaseManager.initialize_database()
+    
+    bot.tree.copy_global_to(guild=MY_GUILD)
+    await bot.tree.sync(guild=MY_GUILD)
+    
+    try:
+        synced = await bot.tree.sync()
+        print(f"Synced {len(synced)} commands")
+    except Exception as e:
+        print(f"Error syncing commands: {e}")
+
+@bot.tree.command(
+    name="createadminchannel",
+    description="Set the admin channel for game management",
+    guild=MY_GUILD
+)
+async def create_admin_channel(interaction: discord.Interaction):
+    channel_id = str(interaction.channel.id)
+    os.environ["ADMIN_CHANNEL"] = channel_id
+    dotenv_path = find_dotenv()
+    set_key(dotenv_path, "ADMIN_CHANNEL", channel_id)
+    await interaction.response.send_message(
+        f"Admin channel set to {interaction.channel.mention}.",
+        ephemeral=True
+    )
+
+@bot.tree.command(
+    name="rolepreference",
+    description="Set your role preferences",
+    guild=MY_GUILD
+)
+async def role_preference(interaction: discord.Interaction):
+    embed = discord.Embed(
+        title="Role Preference",
+        description="Please select your role preference for each role.\n1 being most desirable\n5 being least desirable.",
+        color=discord.Color.blue()
+    )
+    dropdown_view = RolePreferenceView()
+    
+    await interaction.response.send_message(
+        embed=embed,
+        view=dropdown_view,
+        ephemeral=True
+    )
+    dropdown_msg = await interaction.original_response()
+
+    submit_embed = discord.Embed(
+        title="Submit Your Preferences",
+        description="Once done, click submit below:",
+        color=discord.Color.green()
+    )
+    submit_view = SubmitPreferenceView(dropdown_msg, dropdown_view)
+    await interaction.followup.send(
+        embed=submit_embed,
+        view=submit_view,
+        ephemeral=True
+    )
+
+class RoleSelect(discord.ui.Select):
+    def __init__(self, role_name: str, index: int):
+        options = [discord.SelectOption(label=str(i), value=str(i)) for i in range(1, 6)]
+        super().__init__(
+            placeholder=f"Select preference for {role_name}",
+            min_values=1,
+            max_values=1,
+            options=options,
+            custom_id=role_name
+        )
+        self.role_name = role_name
+        self.order = index
+        self.value = None
+
+    async def callback(self, interaction: discord.Interaction):
+        self.value = self.values[0]
+        await interaction.response.defer()
+
+class RolePreferenceView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.roles = ["Top", "Jungle", "Mid", "Bot", "Support"]
+        for index, role in enumerate(self.roles):
+            self.add_item(RoleSelect(role, index))
+
+
+class SubmitPreferenceView(discord.ui.View):
+    def __init__(self, dropdown_msg, dropdown_view):
+        super().__init__(timeout=None)
+        self.dropdown_msg = dropdown_msg
+        self.dropdown_view = dropdown_view
+        self.add_item(SubmitButton(dropdown_msg, dropdown_view))
+
+class SubmitButton(discord.ui.Button):
+    def __init__(self, dropdown_msg, dropdown_view):
+        super().__init__(label="Submit", style=discord.ButtonStyle.green)
+        self.dropdown_msg = dropdown_msg
+        self.dropdown_view = dropdown_view
+
+    async def callback(self, interaction: discord.Interaction):
+        try:
+            for child in self.dropdown_view.children:
+                if isinstance(child, RoleSelect) and child.value is None:
+                    await interaction.response.send_message(
+                        "Please select a preference for all roles before submitting.",
+                        ephemeral=True
+                    )
+                    return
+
+            sorted_selects = sorted(
+                [child for child in self.dropdown_view.children if isinstance(child, RoleSelect)],
+                key=lambda x: x.order
+            )
+            result = "".join(select.value for select in sorted_selects)
+
+            # Store `result` in your database here
+
+            original_embed = self.dropdown_msg.embeds[0]
+            new_embed = discord.Embed(
+                title=original_embed.title,
+                color=original_embed.color
+            )
+            new_embed.add_field(name="Result", value=result, inline=False)
+
+            for child in self.dropdown_view.children:
+                child.disabled = True
+            await self.dropdown_msg.edit(embed=new_embed, view=self.dropdown_view)
+
+            self.disabled = True
+            await interaction.response.edit_message(view=self.view)
+
+            await interaction.followup.send("Preferences submitted!", ephemeral=True)
+
+        except Exception as e:
+            print(f"Error in submit callback: {e}")
+            await interaction.response.send_message(
+                "An error occurred while submitting preferences. Please try again.",
+                ephemeral=True
+            )
+            
+@bot.tree.command(
+    name="checkin",
+    description="Start a check-in session for players",
+    guild=MY_GUILD
+)
+async def checkin(interaction: discord.Interaction):
+    embed = discord.Embed(title="📋 Check-In List", color=discord.Color.green())
+    embed.add_field(name="Checked-in Users", value="No one has checked in yet.", inline=False)
+    await interaction.response.send_message(
+        embed=embed,
+        view=StartGameView(interaction.user.id),
+        ephemeral=False
+    )
 
 class GlobalGameState:
     def __init__(self, games: list):
@@ -69,19 +228,6 @@ class GlobalGameState:
         mode_str = "enabled (names revealed)" if self.swap_mode else "disabled (names hidden)"
         await interaction.response.send_message(f"Swap mode {mode_str}.", ephemeral=True)
 
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    await databaseManager.initialize_database()
-
-@bot.command()
-async def checkin(ctx):
-    embed = discord.Embed(title="📋 Check-In List", color=discord.Color.green())
-    embed.add_field(name="Checked-in Users", value="No one has checked in yet.", inline=False)
-    await ctx.send(embed=embed, view=StartGameView(ctx.author.id))
-
 class StartGameView(discord.ui.View):
     def __init__(self, creator_id: int):
         super().__init__(timeout=None)
@@ -118,6 +264,8 @@ class StartGameView(discord.ui.View):
         if interaction.user.id != self.creator_id:
             await interaction.response.send_message("Only the creator can start the game!", ephemeral=True)
             return
+
+        # Set up fake data for the games
         fakeDataBlue = [
             ["Player1", "Player2", "Player3", "Player4", "Player5"],
             ["Player6", "Player7", "Player8", "Player9", "Player10"],
@@ -131,13 +279,25 @@ class StartGameView(discord.ui.View):
             games.append({"blue": fakeDataBlue[i], "red": fakeDataRed[i]})
         global global_game_state
         global_game_state = GlobalGameState(games)
+        
+        admin_channel_id = os.getenv("ADMIN_CHANNEL")
+        if not admin_channel_id:
+            await interaction.response.send_message("Admin channel not set. Please run the createAdminChannel command first.", ephemeral=True)
+            return
+        admin_channel = bot.get_channel(int(admin_channel_id))
+        if admin_channel is None:
+            await interaction.response.send_message("Admin channel could not be found. Ensure the bot has access to that channel.", ephemeral=True)
+            return
+
         for i, game in enumerate(games):
             embed = global_game_state.generate_embed(i)
-            msg = await interaction.channel.send(embed=embed, view=GameControlView(global_game_state, i))
+            msg = await admin_channel.send(embed=embed, view=GameControlView(global_game_state, i))
             global_game_state.game_messages[i] = msg
+
         gc_embed = discord.Embed(title="Global Controls", description="Toggle swap mode or finalize games.", color=discord.Color.gold())
-        await interaction.channel.send(embed=gc_embed, view=GlobalSwapControlView())
-        await interaction.response.send_message("Game messages created!", ephemeral=True)
+        await admin_channel.send(embed=gc_embed, view=GlobalSwapControlView())
+
+        await interaction.response.send_message("Game messages created in the admin channel!", ephemeral=True)
 
 class GamePlayerButton(discord.ui.Button):
     def __init__(self, game_index: int, team: str, player_index: int, player_name: str):
@@ -178,7 +338,7 @@ class GameControlView(discord.ui.View):
         super().__init__(timeout=None)
         self.global_state = global_state
         self.game_index = game_index
-        if self.global_state.swap_mode:
+        if not self.global_state.finalized and self.global_state.swap_mode:
             blue_team = self.global_state.games[game_index]["blue"]
             for i, player in enumerate(blue_team):
                 button = GamePlayerButton(game_index, "blue", i, player)
