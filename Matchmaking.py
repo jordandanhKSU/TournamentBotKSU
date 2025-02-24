@@ -3,7 +3,7 @@ import math
 
 rank_weight = 1.0
 tier_weight = 1.0
-role_weight = .5
+role_weight = .6
 win_rate_weight = .1
 
 ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
@@ -40,22 +40,27 @@ class Player:
         if self.assigned_role in self.role_pref:
             role_factor = 1
         else:
-            role_factor = -1
+            role_factor = 0.5
         prowess = (((11 - rank_tiers[self.rank]) * rank_weight) + ((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight))
         return round(prowess, 2)
+
+    def get_tier(self):
+        return self.tier
         
 # Matchmaking Algo
 def matchmaking(players):
+    min_team_diff = math.inf
     visited = set()
-    random.shuffle(players)
-    team1, team2 = players[:5], players[5:]
-    for i, role in enumerate(roles):
-        team1[i].set_assigned_role(role)
-        team2[i].set_assigned_role(role)
+    while(min_team_diff > 10):
+        random.shuffle(players)
+        team1, team2 = players[:5], players[5:]
+        for i, role in enumerate(roles):
+            team1[i].set_assigned_role(role)
+            team2[i].set_assigned_role(role)
 
-    
+        
 
-    best_teams, min_team_diff = explore(team1, team2, visited)
+        best_teams, min_team_diff = explore(team1, team2, visited)
     
     print("\nFinal Best Teams:")
     print_team(best_teams[0], "Team 1")
@@ -85,7 +90,6 @@ def explore(team1, team2, visited):
     role_diffs = [abs(team1[i].calc_prowess() - team2[i].calc_prowess()) for i in range(5)]
     print(role_diffs)
     
-    curr_lowest_diff = math.inf
     # swap lane with every other player on same team
     for i in range(5):
         for j in range(i+1, 5):
@@ -94,12 +98,19 @@ def explore(team1, team2, visited):
 
             new_team1, new_team2 = team1, team2
             new_team1[j], new_team1[i] = new_team1[i], new_team1[j]
+
+            new_diff = calculate_team_diff(new_team1, team2)
+            
+            if new_diff < min_team_diff:
+                min_team_diff = new_diff
+                best_teams = (new_team1[:], new_team2[:])
+
+                # Recursively explore 
+                best_teams, min_team_diff = explore(new_team1, new_team2, visited)
+            
             new_team2[j], new_team2[i] = new_team2[i], new_team2[j]
-
-            new_diff = calculate_team_diff(new_team1, new_team2)
-
-            if new_diff < curr_lowest_diff:
-                curr_lowest_diff = new_diff
+            
+            new_diff = calculate_team_diff(team1, new_team2)
             
             if new_diff < min_team_diff:
                 min_team_diff = new_diff
@@ -113,7 +124,7 @@ def explore(team1, team2, visited):
         for j in range(i+1, 5):
             new_team1, new_team2 = team1, team2
             new_team1[j], new_team2[i] = new_team2[i], new_team1[j]
-            new_team2[j], new_team1[i] = new_team1[i], new_team2[j]
+            
 
             new_diff = calculate_team_diff(new_team1, new_team2)
 
@@ -121,7 +132,15 @@ def explore(team1, team2, visited):
                 min_team_diff = new_diff
                 best_teams = (new_team1[:], new_team2[:])
                 best_teams, min_team_diff = explore(new_team1, new_team2, visited)
+            
+            new_team2[j], new_team1[i] = new_team1[i], new_team2[j]
+            new_diff = calculate_team_diff(new_team1, new_team2)
 
+            if new_diff < min_team_diff:
+                min_team_diff = new_diff
+                best_teams = (new_team1[:], new_team2[:])
+                best_teams, min_team_diff = explore(new_team1, new_team2, visited)
+            
     return best_teams, min_team_diff
 
 
@@ -129,8 +148,8 @@ def explore(team1, team2, visited):
 def calculate_team_diff(team1, team2):
     diff = 0
     for x in range(5):
-        diff += team1[x].calc_prowess() - team2[x].calc_prowess()
-    return abs(diff)
+        diff += abs(team1[x].calc_prowess() - team2[x].calc_prowess())
+    return diff
 
 def print_team(team, name):
     print(f"\n{name}:")
