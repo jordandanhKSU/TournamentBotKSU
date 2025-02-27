@@ -5,3 +5,5 @@
 *.xlsx
 *.txt
 *.pyc
+
+__pycache__/
