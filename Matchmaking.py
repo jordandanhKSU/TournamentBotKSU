@@ -3,8 +3,11 @@ import math
 
 rank_weight = 1.0
 tier_weight = 5.0
-role_weight = .6
-win_rate_weight = .1
+role_weight = .5
+win_rate_weight = 0
+
+# 1 = role prio on, 0 = role prio off
+role_prio = 1
 
 ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
 roles = ["Top", "Jungle", "Mid", "Bot", "Supp"]
@@ -46,14 +49,39 @@ class Player:
 
     def get_tier(self):
         return self.tier
+    
+    def get_assigned_role_pref(self):
+        return self.role_pref[self.assigned_role]
+    
+    def __repr__(self):
+        return f"\nPlayer {self.user_id} - Rank: {self.rank}, Role Preference: {self.role_pref}, Assigned Role: {roles[self.assigned_role]}"
         
 # Matchmaking Algo
 def matchmaking(players):
+    global role_prio
+    role_prio = 1
+    
+    best_teams, min_team_diff = explore_teams(players)
+    
+    # Assign players to final roles
+    team1, team2 = best_teams[0], best_teams[1]
+    for i in range(5):
+        team1[i].set_assigned_role(i)
+        team2[i].set_assigned_role(i)
+    
+    print("\nFinal Best Teams:")
+    print_team(best_teams[0], "Team 1")
+    print_team(best_teams[1], "Team 2")
+    print(f"Final Team Prowess Difference: {min_team_diff}")
+    print(explored)
+
+def explore_teams(players):
     min_team_diff = math.inf
     visited = set()
     explored = 0
+    limit = 1000
     best_teams = []
-    while(min_team_diff > 10 and explored < 50):
+    while(min_team_diff > 20 and explored < limit):
         random.shuffle(players)
         team1, team2 = players[:5], players[5:]
         for i, role in enumerate(roles):
@@ -64,17 +92,17 @@ def matchmaking(players):
             min_team_diff = curr_team_diff
             best_teams = curr_teams
         explored += 1
-    
-    print("\nFinal Best Teams:")
-    print_team(best_teams[0], "Team 1")
-    print_team(best_teams[1], "Team 2")
-    print(f"Final Team Prowess Difference: {min_team_diff}")
+
     print(explored)
+    if explored >= limit:
+        print("Could not find more optimal teams")
+        
+    return best_teams, min_team_diff
 
 def explore(team1, team2, visited):
     global explored
     explored += 1
-
+    
     # Assign roles
     for i, role in enumerate(roles):
         team1[i].set_assigned_role(role)
