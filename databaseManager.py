@@ -296,6 +296,48 @@ async def update_toxicity(member):
 
         return False  # User not found
 
+# function that removes user from the database    
+async def removeuser(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # searches for user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+        
+        await conn.execute("DELETE FROM PlayerStats WHERE DiscordID = ?", (member,))
+        await conn.commit()
+    
+    return f"User {member} has been removed from the database."
+
+# function that adds an mvp point to a player
+async def add_mvp_point(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # tries to find the user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+        
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+        
+        await conn.execute("UPDATE PlayerStats SET MVPs = MVPs + 1, TotalPoints = TotalPoints + 1 WHERE DiscordID = ?", (member,))
+        await conn.commit()
+    
+    return f"User {member} has received an MVP point"
+
+async def role_preference(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # tries to find the user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
+            result = await cursor.fetchone()
+        
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+
 class Member():
     def __init__(self, id, display_name):
         self.id = id
@@ -335,5 +377,9 @@ async def main():
     await update_toxicity(testPlayer11)
     
     await update_wins(players)
+
+    await removeuser("123098273913123231")
+
+    await add_mvp_point("257163638933159946")
 
 asyncio.run(main())
