@@ -115,41 +115,19 @@ async def update_win_rate(conn, discord_id):
         win_rate = (wins / games_played) * 100 if games_played > 0 else 0
         await conn.execute("UPDATE PlayerStats SET WinRate = ? WHERE DiscordID = ?", (win_rate, discord_id))
 
-async def update_points(members):
+# discord roles need to be implemented here
+# maybe adding functionality for multiple users 
+async def update_points(member):
     async with aiosqlite.connect(DB_PATH) as conn:
-        not_found_users = []
-        updated_users = []
-
-        # Iterate through all members with Player or Volunteer roles
-        for member in members:
-            async with conn.execute("SELECT Participation, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
-                result = await cursor.fetchone()
-
-            if result:
-                participation, games_played = result
-
-                # Check if the member has the Player or Volunteer role
-                if any(role.name == "Player" for role in member.roles):
-                    # Update both Participation and GamesPlayed for Players
-                    await conn.execute(
-                        "UPDATE PlayerStats SET Participation = ?, GamesPlayed = ? WHERE DiscordID = ?",
-                        (participation + 1, games_played + 1, str(member.id))
-                    )
-                    updated_users.append(member.display_name)
-                elif any(role.name == "Volunteer" for role in member.roles):
-                    # Update only Participation for Volunteers
-                    await conn.execute(
-                        "UPDATE PlayerStats SET Participation = ? WHERE DiscordID = ?",
-                        (participation + 1, str(member.id))
-                    )
-                    updated_users.append(member.display_name)
-            else:
-                # Add users who are not found in the database to the list
-                not_found_users.append(member.display_name)
-
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+        
+        if result is None:
+            return f"Failed to update: {member} (user not found in database)."
+        
+        await conn.execute("UPDATE PlayerStats SET Participation = Participation + 1, TotalPoints = TotalPoints + 1 WHERE DiscordID = ?", (member,))
         await conn.commit()
-
-    return {"success": updated_users, "not_found": not_found_users}
+        return f"Added 1 participation point to {member}."
 
 async def update_username(player):
     try:
@@ -184,16 +162,11 @@ async def update_username(player):
     except Exception as e:
         print(f"Error updating username: {e}")
 
-async def link(interaction: discord.Interaction, riot_id: str):
-    member = interaction.user
-
+# member was interaction: discord.Interaction
+async def link(member, riot_id: str):
     # Riot ID is in the format 'username#tagline', e.g., 'jacstogs#1234'
     if '#' not in riot_id:
-        await interaction.response.send_message(
-            "Invalid Riot ID format. Please enter your Riot ID in the format 'username#tagline'.",
-            ephemeral=True
-        )
-        return
+        return print(f"Could not find # in riotID")
 
     # Split the Riot ID into name and tagline
     summoner_name, tagline = riot_id.split('#', 1)
@@ -218,7 +191,7 @@ async def link(interaction: discord.Interaction, riot_id: str):
                     async with aiosqlite.connect(DB_PATH) as conn:
                         try:
                             # Check if the user already exists in the database
-                            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
+                            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
                                 result = await cursor.fetchone()
 
                             if result:
@@ -236,10 +209,8 @@ async def link(interaction: discord.Interaction, riot_id: str):
 
                             await conn.commit()
 
-                            await interaction.response.send_message(
-                                f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account.",
-                                ephemeral=True
-                            )
+                            print(f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account.")
+
                         except aiosqlite.IntegrityError as e:
                             # Handle UNIQUE constraint violation (i.e., Riot ID already linked)
                             if 'UNIQUE constraint failed: PlayerStats.PlayerRiotID' in str(e):
@@ -251,27 +222,19 @@ async def link(interaction: discord.Interaction, riot_id: str):
 
                                 if existing_user_data:
                                     existing_user_id, existing_username = existing_user_data
-                                    await interaction.response.send_message(
-                                        f"Error: This Riot ID is already linked to another Discord user: <@{existing_user_id}>. "
-                                        "If this is a mistake, please contact an administrator.",
-                                        ephemeral=True
-                                    )
+                                    print(f"Error: This Riot ID is already linked to another Discord user: <@{existing_user_id}>. "
+                                        "If this is a mistake, please contact an administrator.")
                             else:
                                 raise e  # Reraise the error if it's not related to UNIQUE constraint
                 else:
                     # Riot ID does not exist or other error
                     error_msg = await response.text()
                     print(f"Riot API error response: {error_msg}")
-                    await interaction.response.send_message(
-                        f"The Riot ID '{riot_id}' could not be found. Please double-check and try again.",
-                        ephemeral=True
-                    )
+                    print(f"The Riot ID '{riot_id}' could not be found. Please double-check and try again.")
+                    
     except Exception as e:
         print(f"An error occurred while connecting to the Riot API: {e}")
-        await interaction.response.send_message(
-            "An unexpected error occurred while trying to link your Riot ID. Please try again later.",
-            ephemeral=True
-        )
+        print(f"An unexpected error occurred while trying to link your Riot ID. Please try again later.")
 
 # function that updates a user's toxicity points
 async def update_toxicity(member):
@@ -296,6 +259,55 @@ async def update_toxicity(member):
 
         return False  # User not found
 
+# function that removes user from the database    
+async def remove_user(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # searches for user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+        
+        await conn.execute("DELETE FROM PlayerStats WHERE DiscordID = ?", (member,))
+        await conn.commit()
+    
+    return f"User {member} has been removed from the database."
+
+# function that adds an mvp point to a player
+async def add_mvp_point(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # tries to find the user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+        
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+        
+        await conn.execute("UPDATE PlayerStats SET MVPs = MVPs + 1, TotalPoints = TotalPoints + 1 WHERE DiscordID = ?", (member,))
+        await conn.commit()
+    
+    return f"User {member} has received an MVP point"
+
+# function that sets role preference to the correct Discord user
+async def set_role_preference(member, preference: str):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # tries to find the user in the PlayerStats table and saves the result
+        async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+            result = await cursor.fetchone()
+        
+        # user does not exist in the database
+        if result is None:
+            return f"This user cannot be found"
+
+        # adds role preference
+        await conn.execute("Update PlayerStats SET RolePreference = ? WHERE DiscordID = ?", (preference, member))
+        await conn.commit()
+
+    return f"Updated role preference for {member} to {preference}."
+
 class Member():
     def __init__(self, id, display_name):
         self.id = id
@@ -317,23 +329,8 @@ async def main():
     testPlayer12 = Member("123098273913123231", "Player12")
 
     players = [testPlayer, testPlayer2, testPlayer3, testPlayer4, testPlayer5]
+    playerIDs = ["257163638933159946", "123098273913123231", "120947671213123231"]
 
-    await initialize_database()
-    await update_username(testPlayer)
-    await update_username(testPlayer2)
-    await update_username(testPlayer3)
-    await update_username(testPlayer4)
-    await update_username(testPlayer5)
-    await update_username(testPlayer6)
-    await update_username(testPlayer7)
-    await update_username(testPlayer8)
-    await update_username(testPlayer9)
-    await update_username(testPlayer10)
-    await update_username(testPlayer11)
-    await update_username(testPlayer12)
-    
-    await update_toxicity(testPlayer11)
-    
-    await update_wins(players)
+    link("120947671213123231", "Simsbad#RTR")
 
 asyncio.run(main())
