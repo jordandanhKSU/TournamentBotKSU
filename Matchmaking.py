@@ -42,7 +42,7 @@ class Player:
         self.assigned_role = assigned_role
     
     def calc_prowess(self):
-        role_factor = 5/(self.get_assigned_role_pref() + 1)
+        role_factor = 5/(self.get_assigned_role_pref())
         prowess = (((5 - self.tier) * tier_weight) + (self.win_rate * win_rate_weight) + (role_factor * role_weight))
         return round(prowess, 2)
 
@@ -181,7 +181,7 @@ def print_team(team, name):
 
 player_list = list()
 
-role_pref = [0, 1, 2, 3, 4]
+role_pref = [1, 2, 3, 4, 5]
 
 # Testing to generate players
 for x in range(10):
