@@ -168,13 +168,54 @@ class SubmitButton(discord.ui.Button):
     guild=MY_GUILD
 )
 async def checkin(interaction: discord.Interaction):
+    global current_checkin_view  # Ensure we use the global variable
     embed = discord.Embed(title="📋 Check-In List", color=discord.Color.green())
     embed.add_field(name="Checked-in Users", value="No one has checked in yet.", inline=False)
+    current_checkin_view = StartGameView(interaction.user.id)  # Set the global view
     await interaction.response.send_message(
         embed=embed,
-        view=StartGameView(interaction.user.id),
+        view=current_checkin_view,
         ephemeral=False
     )
+
+class DummyMember:
+    def __init__(self, id):
+        self.id = id
+        self.mention = f"<@{id}>"
+        
+current_checkin_view = None
+
+@bot.tree.command(
+    name="forcecheckin",
+    description="Force check in players by ID range",
+    guild=MY_GUILD
+)
+async def force_check_in(interaction: discord.Interaction, start_id: int, end_id: int):
+    global current_checkin_view
+    if current_checkin_view is None:
+        await interaction.response.send_message("No active check-in session. Run /checkin first.", ephemeral=True)
+        return
+    if start_id > end_id:
+        await interaction.response.send_message("Invalid range: start_id must be less than or equal to end_id.", ephemeral=True)
+        return
+
+    count = 0
+    for i in range(start_id, end_id + 1):
+        dummy = DummyMember(i)
+        # Avoid duplicates if a player is already checked in.
+        if any(member.id == dummy.id for member in current_checkin_view.checked_in_users):
+            continue
+        current_checkin_view.checked_in_users.append(dummy)
+        count += 1
+
+    # Update the embed on the check-in message with the new list.
+    try:
+        await current_checkin_view.update_embed(interaction)
+    except Exception as e:
+        print(f"Failed to update embed: {e}")
+
+    await interaction.response.send_message(f"Forced check in for {count} players.", ephemeral=True)
+
 
 class GlobalGameState:
     def __init__(self, games: list):
@@ -253,19 +294,21 @@ class StartGameView(discord.ui.View):
         await self.update_embed(interaction)
         await interaction.response.send_message("You've left the check-in list.", ephemeral=True)
 
-    async def update_embed(self, interaction: discord.Interaction):
-        checked_in_list = [f"{user.mention}" for user in self.checked_in_users]
-        embed = interaction.message.embeds[0]
-        embed.set_field_at(index=0, name="Checked-in Users", value="\n".join(checked_in_list) or "No one has checked in yet.", inline=False)
-        await interaction.message.edit(embed=embed)
-
     @discord.ui.button(label="Start\nGame", style=discord.ButtonStyle.grey)
     async def start_game_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user.id != self.creator_id:
             await interaction.response.send_message("Only the creator can start the game!", ephemeral=True)
             return
 
-        # Set up fake data for the games
+        # Defer the interaction so that we have time to complete processing.
+        await interaction.response.defer()
+
+        # Disable all buttons in the view.
+        for child in self.children:
+            child.disabled = True
+        await interaction.message.edit(view=self)
+
+        # ---- Insert your game start logic below ----
         fakeDataBlue = [
             ["Player1", "Player2", "Player3", "Player4", "Player5"],
             ["Player6", "Player7", "Player8", "Player9", "Player10"],
@@ -274,6 +317,7 @@ class StartGameView(discord.ui.View):
             ["Player11", "Player12", "Player13", "Player14", "Player15"],
             ["Player16", "Player17", "Player18", "Player19", "Player20"],
         ]
+        
         games = []
         for i in range(len(fakeDataBlue)):
             games.append({"blue": fakeDataBlue[i], "red": fakeDataRed[i]})
@@ -282,11 +326,11 @@ class StartGameView(discord.ui.View):
         
         admin_channel_id = os.getenv("ADMIN_CHANNEL")
         if not admin_channel_id:
-            await interaction.response.send_message("Admin channel not set. Please run the createAdminChannel command first.", ephemeral=True)
+            await interaction.followup.send("Admin channel not set. Please run the createAdminChannel command first.", ephemeral=True)
             return
         admin_channel = bot.get_channel(int(admin_channel_id))
         if admin_channel is None:
-            await interaction.response.send_message("Admin channel could not be found. Ensure the bot has access to that channel.", ephemeral=True)
+            await interaction.followup.send("Admin channel could not be found. Ensure the bot has access to that channel.", ephemeral=True)
             return
 
         for i, game in enumerate(games):
@@ -297,7 +341,23 @@ class StartGameView(discord.ui.View):
         gc_embed = discord.Embed(title="Global Controls", description="Toggle swap mode or finalize games.", color=discord.Color.gold())
         await admin_channel.send(embed=gc_embed, view=GlobalSwapControlView())
 
-        await interaction.response.send_message("Game messages created in the admin channel!", ephemeral=True)
+        try:
+            await interaction.followup.send("Game messages created in the admin channel!", ephemeral=True)
+        except discord.errors.NotFound:
+            print("Failed to send followup message: Unknown Webhook")
+
+    async def update_embed(self, interaction: discord.Interaction):
+        # Format the check-in list into a grid (rows of 5) in a single embed field.
+        embed = interaction.message.embeds[0]
+        if not self.checked_in_users:
+            checkin_text = "No one has checked in yet."
+        else:
+            mentions = [user.mention for user in self.checked_in_users]
+            rows = [" ".join(mentions[i:i+5]) for i in range(0, len(mentions), 5)]
+            checkin_text = "\n".join(rows)
+        embed.clear_fields()
+        embed.add_field(name="Checked-in Users", value=checkin_text, inline=False)
+        await interaction.message.edit(embed=embed)
 
 class GamePlayerButton(discord.ui.Button):
     def __init__(self, game_index: int, team: str, player_index: int, player_name: str):

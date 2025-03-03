@@ -166,7 +166,7 @@ async def update_username(player):
 async def link(member, riot_id: str):
     # Riot ID is in the format 'username#tagline', e.g., 'jacstogs#1234'
     if '#' not in riot_id:
-        return print(f"Could not find # in riotID")
+        return print("Could not find # in riotID")
 
     # Split the Riot ID into name and tagline
     summoner_name, tagline = riot_id.split('#', 1)
@@ -190,8 +190,8 @@ async def link(member, riot_id: str):
 
                     async with aiosqlite.connect(DB_PATH) as conn:
                         try:
-                            # Check if the user already exists in the database
-                            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (member,)) as cursor:
+                            # Use member's id for database operations
+                            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
                                 result = await cursor.fetchone()
 
                             if result:
@@ -223,7 +223,7 @@ async def link(member, riot_id: str):
                                 if existing_user_data:
                                     existing_user_id, existing_username = existing_user_data
                                     print(f"Error: This Riot ID is already linked to another Discord user: <@{existing_user_id}>. "
-                                        "If this is a mistake, please contact an administrator.")
+                                          "If this is a mistake, please contact an administrator.")
                             else:
                                 raise e  # Reraise the error if it's not related to UNIQUE constraint
                 else:
@@ -234,7 +234,7 @@ async def link(member, riot_id: str):
                     
     except Exception as e:
         print(f"An error occurred while connecting to the Riot API: {e}")
-        print(f"An unexpected error occurred while trying to link your Riot ID. Please try again later.")
+        print("An unexpected error occurred while trying to link your Riot ID. Please try again later.")
 
 # function that updates a user's toxicity points
 async def update_toxicity(member):
@@ -308,29 +308,112 @@ async def set_role_preference(member, preference: str):
 
     return f"Updated role preference for {member} to {preference}."
 
-class Member():
-    def __init__(self, id, display_name):
-        self.id = id
-        self.display_name = display_name
-        self.roles = []
+async def clear_database():
+    async with aiosqlite.connect(DB_PATH) as conn:
+        await conn.execute("DELETE FROM PlayerStats")
+        await conn.commit()
+        print("Database cleared successfully.")
+
+async def add_22_players():
+    roles = ["Top", "Jungle", "Mid", "ADC", "Support"]
+    # Mapping of most desirable role to a sample 5-character preference string
+    role_to_pref = {
+        "Top": "15432",     # '1' in position 0 (Top is most desired)
+        "Jungle": "51432",  # '1' in position 1 (Jungle is most desired)
+        "Mid": "54132",     # '1' in position 2 (Mid is most desired)
+        "ADC": "54312",     # '1' in position 3 (ADC is most desired)
+        "Support": "54321"  # '1' in position 4 (Support is most desired)
+    }
+
+    async with aiosqlite.connect(DB_PATH) as conn:
+        for i in range(1, 23):  # IDs 1 to 22
+            # Evenly cycle tiers 1-4
+            tier = ((i - 1) % 4) + 1
+            # Cycle through the roles for most desirable assignment
+            most_desirable = roles[(i - 1) % 5]
+            # Construct username: id + most desirable role + tier (e.g., "1Top4")
+            username = f"{i}{most_desirable}{tier}"
+            # Get the corresponding role preference string
+            role_pref = role_to_pref[most_desirable]
+
+            # Insert the player into the PlayerStats table.
+            # Other columns (e.g., Participation, Wins, etc.) will use their default values.
+            await conn.execute(
+                """
+                INSERT INTO PlayerStats (DiscordID, DiscordUsername, PlayerTier, RolePreference)
+                VALUES (?, ?, ?, ?)
+                """,
+                (str(i), username, tier, role_pref)
+            )
+        await conn.commit()
+        print("22 players have been added to the database.")
+
+class Player:
+    def __init__(self, discord_id, username, player_riot_id, participation, wins, mvps,
+                 toxicity_points, games_played, win_rate, total_points, tier, rank, role_preference):
+        self.discord_id = discord_id
+        self.username = username
+        self.player_riot_id = player_riot_id
+        self.participation = participation
+        self.wins = wins
+        self.mvps = mvps
+        self.toxicity_points = toxicity_points
+        self.games_played = games_played
+        self.win_rate = win_rate
+        self.total_points = total_points
+        self.tier = tier
+        self.rank = rank
+        self.role_preference = role_preference  # a list of integers
+
+    def __repr__(self):
+        return (f"Player({self.discord_id}, {self.username}, Tier: {self.tier}, Rank: {self.rank}, "
+                f"Role Preference: {self.role_preference})")
+
+async def get_player_info(discord_id: str) -> Player:
+    """
+    Retrieve player information from the database based on DiscordID.
+    Returns an instance of the Player class with:
+      - discord_id, username, player_riot_id, participation, wins, mvps,
+      - toxicity_points, games_played, win_rate, total_points, tier, rank, 
+      - role_preference (stored as a list of integers).
+    """
+    async with aiosqlite.connect(DB_PATH) as conn:
+        query = """
+        SELECT DiscordID, DiscordUsername, PlayerRiotID, Participation, Wins, MVPs, 
+               ToxicityPoints, GamesPlayed, WinRate, TotalPoints, PlayerTier, PlayerRank, RolePreference
+        FROM PlayerStats
+        WHERE DiscordID = ?
+        """
+        async with conn.execute(query, (discord_id,)) as cursor:
+            result = await cursor.fetchone()
+
+    if result:
+        (id_val, username, player_riot_id, participation, wins, mvps, toxicity_points,
+         games_played, win_rate, total_points, tier, rank, role_pref_str) = result
+        # Convert the role preference string into a list of integers (e.g. "15432" -> [1,5,4,3,2])
+        role_preference = [int(ch) for ch in role_pref_str] if role_pref_str else []
+        player = Player(
+            discord_id=id_val,
+            username=username,
+            player_riot_id=player_riot_id,
+            participation=participation,
+            wins=wins,
+            mvps=mvps,
+            toxicity_points=toxicity_points,
+            games_played=games_played,
+            win_rate=win_rate,
+            total_points=total_points,
+            tier=tier,
+            rank=rank,
+            role_preference=role_preference
+        )
+        return player
+    return None
 
 async def main():
-    testPlayer = Member("257163638933159946", "biderp")
-    testPlayer2 = Member("123465671213923231", "Player2")
-    testPlayer3 = Member("123465672413123231", "Player3")
-    testPlayer4 = Member("123465671213173231", "Player4")
-    testPlayer5 = Member("123465671213120231", "Player5")
-    testPlayer6 = Member("903465671213123231", "Player6")
-    testPlayer7 = Member("120947671213123231", "Player7")
-    testPlayer8 = Member("109875671213123231", "Player8")
-    testPlayer9 = Member("123465671567823231", "Player9")
-    testPlayer10 = Member("123465671097853231", "Player10")
-    testPlayer11 = Member("123465671217563431", "Player11")
-    testPlayer12 = Member("123098273913123231", "Player12")
-
-    players = [testPlayer, testPlayer2, testPlayer3, testPlayer4, testPlayer5]
-    playerIDs = ["257163638933159946", "123098273913123231", "120947671213123231"]
-
-    link("120947671213123231", "Simsbad#RTR")
+    await initialize_database()
+    await clear_database()
+    await add_22_players()
+    return
 
 asyncio.run(main())
