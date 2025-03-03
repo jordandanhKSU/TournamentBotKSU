@@ -80,31 +80,31 @@ async def check_winners_in_db(winners):
     not_found_users = []
     async with aiosqlite.connect(DB_PATH) as conn:
         for winner in winners:
-            # Check if the player exists in the database
-            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.id),)) as cursor:
+            # Use winner.discord_id instead of winner.id
+            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.discord_id),)) as cursor:
                 result = await cursor.fetchone()
 
             if not result:
                 # Add to not found list
                 not_found_users.append(winner)
 
+
 async def update_wins(winners):
     async with aiosqlite.connect(DB_PATH) as conn:
         for winner in winners:
-            # Since we already checked for existence, we can directly update
-            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.id),)) as cursor:
+            # Use winner.discord_id instead of winner.id
+            async with conn.execute("SELECT Wins, GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(winner.discord_id),)) as cursor:
                 result = await cursor.fetchone()
                 if result:
                     wins, games_played = result
-                    # Update the Wins and GamesPlayed for the player
                     await conn.execute(
                         "UPDATE PlayerStats SET Wins = ?, GamesPlayed = ? WHERE DiscordID = ?",
-                        (wins + 1, games_played + 1, str(winner.id))
+                        (wins + 1, games_played + 1, str(winner.discord_id))
                     )
-                    # Update win rate for the player
-                    await update_win_rate(conn, str(winner.id))
-
+                    await update_win_rate(conn, str(winner.discord_id))
         await conn.commit()
+
+
 
 # code to calculate and update winrate in database
 async def update_win_rate(conn, discord_id):
@@ -236,28 +236,30 @@ async def link(member, riot_id: str):
         print(f"An error occurred while connecting to the Riot API: {e}")
         print("An unexpected error occurred while trying to link your Riot ID. Please try again later.")
 
-# function that updates a user's toxicity points
-async def update_toxicity(member):
+async def update_toxicity_by_id(discord_id: str):
     async with aiosqlite.connect(DB_PATH) as conn:
-        # Attempt to find the user in the PlayerStats table
-        async with conn.execute("SELECT ToxicityPoints FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
+        # Search for the user in the PlayerStats table using the given discord_id
+        async with conn.execute("SELECT ToxicityPoints FROM PlayerStats WHERE DiscordID = ?", (discord_id,)) as cursor:
             result = await cursor.fetchone()
 
         if result:
             toxicity_points = result[0]
-            # Increment the ToxicityPoints and update TotalPoints accordingly
+            # Increment the toxicity points and update TotalPoints accordingly.
+            # Adjust the TotalPoints calculation as needed.
             await conn.execute(
                 """
                 UPDATE PlayerStats 
                 SET ToxicityPoints = ?, TotalPoints = (Participation + Wins - ?)
                 WHERE DiscordID = ?
                 """,
-                (toxicity_points + 1, toxicity_points + 1, str(member.id))
+                (toxicity_points + 1, toxicity_points + 1, discord_id)
             )
             await conn.commit()
-            return True  # Successfully updated user
+            return True  # Successfully updated
 
         return False  # User not found
+
+
 
 # function that removes user from the database    
 async def remove_user(member):
@@ -307,6 +309,19 @@ async def set_role_preference(member, preference: str):
         await conn.commit()
 
     return f"Updated role preference for {member} to {preference}."
+
+async def update_games_played(member):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # Use member.discord_id instead of member.id for Player objects
+        async with conn.execute("SELECT GamesPlayed FROM PlayerStats WHERE DiscordID = ?", (str(member.discord_id),)) as cursor:
+            result = await cursor.fetchone()
+        if result:
+            games_played = result[0]
+            # Update games played
+            await conn.execute("UPDATE PlayerStats SET GamesPlayed = ? WHERE DiscordID = ?", (games_played + 1, str(member.discord_id)))
+            # Recalculate win rate (wins remains unchanged)
+            await update_win_rate(conn, str(member.discord_id))
+            await conn.commit()
 
 async def clear_database():
     async with aiosqlite.connect(DB_PATH) as conn:
@@ -363,7 +378,7 @@ class Player:
         self.total_points = total_points
         self.tier = tier
         self.rank = rank
-        self.role_preference = role_preference  # a list of integers
+        self.role_preference = role_preference
 
     def __repr__(self):
         return (f"Player({self.discord_id}, {self.username}, Tier: {self.tier}, Rank: {self.rank}, "
@@ -416,4 +431,5 @@ async def main():
     await add_22_players()
     return
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
