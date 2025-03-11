@@ -13,8 +13,6 @@ role_prio = 1
 ranks = ["iron", "bronze", "silver", "gold", "plat", "emerald", "diamond", "master", "grandmaster", "challenger"]
 roles = ["Top", "Jungle", "Mid", "Bot", "Supp"]
 
-rank_tiers = {r: len(ranks) - i for i, r in enumerate(ranks)}
-
 # Original Player class 
 class Player:
     def __init__(self, discord_id, username, player_riot_id, participation, wins, mvps,
@@ -64,13 +62,14 @@ class PlayerAdapter:
     def calc_prowess(self):
         win_rate_val = self.win_rate if self.win_rate is not None else 0.0
         role_factor = 5 / self.get_assigned_role_pref()
-        prowess = (((5 - self.get_tier()) * tier_weight) +
+        number_of_tiers = 8
+        prowess = (((number_of_tiers - self.get_tier()) * tier_weight) +
                    (win_rate_val * win_rate_weight) +
                    (role_factor * role_weight))
         return round(prowess, 2)
 
 
-def iterative_explore(team1, team2, max_iterations=1000):
+def iterative_explore(team1, team2, max_iterations=100):
     """
     Uses a stack to iteratively explore neighboring configurations.
     Each state is a tuple (team1, team2) where team1 and team2 are lists of 5 PlayerAdapters.
@@ -83,7 +82,10 @@ def iterative_explore(team1, team2, max_iterations=1000):
 
     best_teams = (team1[:], team2[:])
     best_fitness = fitness(team1, team2)
+    # Can have iterative_explore return a set so can check previous iterations exploration
+    # Instead of making a new one each time
     visited = set()
+    state_keys = []
     # Represent state as tuple of discord_ids.
     initial_state_key = tuple(p.discord_id for p in team1 + team2)
     visited.add(initial_state_key)
@@ -99,54 +101,62 @@ def iterative_explore(team1, team2, max_iterations=1000):
         # Generate neighbors by swapping roles within team1.
         for i in range(5):
             for j in range(i+1, 5):
+                state_keys.clear()
+                
+                # Generate neighbors by swapping roles within team1.
                 new_team1 = current_team1[:]
-                new_team2 = current_team2[:]  # unchanged
+                new_team2 = current_team2[:]
                 new_team1[i], new_team1[j] = new_team1[j], new_team1[i]
-                state_key = tuple(p.discord_id for p in new_team1 + new_team2)
-                if state_key not in visited:
-                    visited.add(state_key)
-                    new_fit = fitness(new_team1, new_team2)
-                    if new_fit < best_fitness:
-                        best_fitness = new_fit
-                        best_teams = (new_team1[:], new_team2[:])
-                    stack.append((new_team1, new_team2))
-        # Generate neighbors by swapping roles within team2.
-        for i in range(5):
-            for j in range(i+1, 5):
+                state_keys.append((new_team1, new_team2))
+                
+                # Generate neighbors by swapping roles within team2.
                 new_team1 = current_team1[:]
                 new_team2 = current_team2[:]
                 new_team2[i], new_team2[j] = new_team2[j], new_team2[i]
-                state_key = tuple(p.discord_id for p in new_team1 + new_team2)
-                if state_key not in visited:
-                    visited.add(state_key)
-                    new_fit = fitness(new_team1, new_team2)
-                    if new_fit < best_fitness:
-                        best_fitness = new_fit
-                        best_teams = (new_team1[:], new_team2[:])
-                    stack.append((new_team1, new_team2))
-        # Generate neighbors by swapping players between teams.
-        for i in range(5):
-            for j in range(5):
+                state_keys.append((new_team1, new_team2))
+                
+                # Generate neighbors by swapping players between teams.
                 new_team1 = current_team1[:]
                 new_team2 = current_team2[:]
                 new_team1[i], new_team2[j] = new_team2[j], new_team1[i]
-                state_key = tuple(p.discord_id for p in new_team1 + new_team2)
-                if state_key not in visited:
-                    visited.add(state_key)
-                    new_fit = fitness(new_team1, new_team2)
-                    if new_fit < best_fitness:
-                        best_fitness = new_fit
-                        best_teams = (new_team1[:], new_team2[:])
-                    stack.append((new_team1, new_team2))
+                state_keys.append((new_team1, new_team2))
+                
+                new_team1 = current_team1[:]
+                new_team2 = current_team2[:]
+                new_team1[j], new_team2[i] = new_team2[i], new_team1[j]
+                state_keys.append((new_team1, new_team2))
+                
+                for new_team1, new_team2 in state_keys:
+                    state_key = tuple(p.discord_id for p in new_team1 + new_team2)
+                    if state_key not in visited:
+                        visited.add(state_key)
+                        new_fit = fitness(new_team1, new_team2)
+                        if new_fit < best_fitness:
+                            best_fitness = new_fit
+                            best_teams = (new_team1[:], new_team2[:])
+                        stack.append((new_team1, new_team2))
+    
         iterations += 1
+        
 
     return best_teams, best_fitness
 
 def explore_teams(players):
-    # Assume players is a list of 10 PlayerAdapters.
-    team1, team2 = players[:5], players[5:]
-    # Use the iterative approach to search for a better configuration.
-    return iterative_explore(team1, team2)
+    min_team_diff = math.inf
+    max_iterations = 10
+    
+    while min_team_diff > 25 and max_iterations > 0:
+        # Assume players is a list of 10 PlayerAdapters.
+        random.shuffle(players)
+        team1, team2 = players[:5], players[5:]
+        # Use the iterative approach to search for a better configuration.
+        teams, team_diff = iterative_explore(team1, team2)
+        if team_diff < min_team_diff:
+            min_team_diff = team_diff
+            best_teams = teams
+        max_iterations -= 1
+    
+    return best_teams, min_team_diff
 
 def fitness(team1, team2):
     global role_prio
@@ -157,14 +167,15 @@ def fitness(team1, team2):
     # Add penalty based on role preferences if role priority is enabled.
     if role_prio == 1:
         for x in range(5):
-            diff += team1[x].get_assigned_role_pref() + team2[x].get_assigned_role_pref()
+            diff += team1[x].get_assigned_role_pref()
+            diff += team2[x].get_assigned_role_pref()
     return diff
 
 def print_team(team, name):
     print(f"\n{name}:")
     for player in team:
         role = roles[player.assigned_role] if player.assigned_role is not None else "Unassigned"
-        print(f"{player.discord_id} ({player.username}), {player.rank}, Pref: {player.role_preference}, Role: {role}, Prowess: {player.calc_prowess()}")
+        print(f"{player.discord_id} ({player.username}), {player.rank}, Pref: {player.role_preference}, Role: {role}, Prowess: {player.calc_prowess()}, Tier: {player.tier}")
 
 def matchmaking(players):
     """
@@ -214,7 +225,7 @@ def matchmaking_multiple(players):
 player_list = []
 
 # Create 50 players
-for x in range(50):
+for x in range(20):
     role_pref = [1, 2, 3, 4, 5]
     random.shuffle(role_pref)
     discord_id = f"p{x+1}"
@@ -229,16 +240,22 @@ for x in range(50):
     total_points = random.randint(0, 1000)
     rank = random.choice(ranks)
     # Assign a tier based on rank.
-    if rank in ["iron", "bronze", "silver"]:
+    if rank in ["iron"]:
+        tier = 7
+    elif rank in ["bronze", "silver"]:
+        tier = 6
+    elif rank in ["gold"]:
+        tier = 5
+    elif rank in ["plat"]:
         tier = 4
-    elif rank in ["gold", "plat"]:
+    elif rank in ["emerald", "diamond"]:
         tier = 3
-    elif rank in ["emerald", "diamond", "master"]:
+    elif rank in ["master"]:
         tier = 2
     elif rank in ["grandmaster", "challenger"]:
         tier = 1
     else:
-        tier = 4
+        tier = 7
     role_preference = role_pref[:]  # make a copy
     player_list.append(
         Player(discord_id, username, player_riot_id, participation, wins, mvps,
