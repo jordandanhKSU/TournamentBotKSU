@@ -256,10 +256,13 @@ class SubmitButton(discord.ui.Button):
                 child.disabled = True
             await self.dropdown_msg.edit(embed=new_embed, view=self.dropdown_view)
 
+            # Save the role preference to the database
+            await databaseManager.set_role_preference(str(interaction.user.id), result)
+            
             # Disable the submit button
             self.disabled = True
             await interaction.response.edit_message(view=self.view)
-            await interaction.followup.send("Preferences submitted!", ephemeral=True)
+            await interaction.followup.send("Preferences submitted and saved!", ephemeral=True)
 
         except Exception as e:
             print(f"Error in submit callback: {e}")
@@ -336,19 +339,56 @@ class StartGameView(discord.ui.View):
             await interaction.response.send_message("You've already checked in!", ephemeral=True)
             return
         
-        # Check if user has a Riot ID linked
+        # Get player info to check for Riot ID and role preference
         player_info = await databaseManager.get_player_info(str(interaction.user.id))
-        if player_info is None or player_info.player_riot_id is None:
+        
+        # Default role preference in the database is '55555'
+        default_role_pref = "55555"
+        has_role_preference = player_info is not None and player_info.role_preference and "".join(str(x) for x in player_info.role_preference) != default_role_pref
+        has_riot_id = player_info is not None and player_info.player_riot_id is not None
+        
+        # Check configuration status and send appropriate messages
+        if not has_riot_id and not has_role_preference:
             await interaction.response.send_message(
-                "You need to link your Riot ID before checking in. Use the `/link` command to link your account.",
+                "Before checking in, you must link your Riot ID and set your role preference. "
+                "Please use the `/link` command to connect your Riot ID and the `/rolepreference` command to set your role preference.",
+                ephemeral=True
+            )
+            return
+        elif not has_riot_id:
+            await interaction.response.send_message(
+                "You need to link your Riot ID before checking in. "
+                "Please use the `/link` command to connect your account.",
+                ephemeral=True
+            )
+            return
+        elif not has_role_preference:
+            await interaction.response.send_message(
+                "You need to set your role preference before checking in. "
+                "Please use the `/rolepreference` command to indicate your preferred roles.",
                 ephemeral=True
             )
             return
         
+        # Update username and check if rank has changed
         await databaseManager.update_username(interaction.user)
+        
+        # Check if player's rank has changed since last check-in
+        has_changed, rank_message = await databaseManager.check_and_update_rank(
+            str(interaction.user.id), player_info.player_riot_id
+        )
+        
         self.checked_in_users.append(interaction.user)
         await self.update_embed(interaction)
-        await interaction.response.send_message("Successfully checked in!", ephemeral=True)
+        
+        # Construct the response message based on whether rank changed
+        if has_changed:
+            await interaction.response.send_message(
+                f"Successfully checked in! {rank_message}",
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message("Successfully checked in!", ephemeral=True)
 
     @discord.ui.button(label="Leave", style=discord.ButtonStyle.red)
     async def leave_button(self, interaction: discord.Interaction, button: discord.ui.Button):

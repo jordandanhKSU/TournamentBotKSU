@@ -129,6 +129,105 @@ async def update_points(member):
         await conn.commit()
         return f"Added 1 participation point to {member}."
 
+async def check_and_update_rank(player_id: str, riot_id: str):
+    """
+    Check if a player's rank has changed by fetching current rank from Riot API.
+    Returns a tuple (bool, str) where the first value indicates if the rank changed,
+    and the second value is a message about the change.
+    """
+    # Get API key
+    api_key = os.getenv("RIOT_API_KEY")
+    if not api_key:
+        return False, "Could not check rank: API key not found."
+    
+    # Extract summoner name and tagline from riot_id
+    if '#' not in riot_id:
+        return False, "Invalid Riot ID format."
+    summoner_name, tagline = riot_id.split('#', 1)
+    
+    try:
+        # Get current rank in database
+        async with aiosqlite.connect(DB_PATH) as conn:
+            async with conn.execute(
+                "SELECT PlayerRank FROM PlayerStats WHERE DiscordID = ?",
+                (player_id,)
+            ) as cursor:
+                result = await cursor.fetchone()
+            
+            if not result:
+                return False, "Player not found in database."
+            
+            current_db_rank = result[0]
+            
+            # Fetch current rank from Riot API
+            headers = {"X-Riot-Token": api_key}
+            
+            # Step 1: Get account info
+            async with aiohttp.ClientSession() as session:
+                account_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{summoner_name}/{tagline}"
+                async with session.get(account_url, headers=headers) as response:
+                    if response.status != 200:
+                        return False, "Could not verify Riot ID."
+                    
+                    account_data = await response.json()
+                    puuid = account_data.get("puuid")
+                    
+                    # Step 2: Get Summoner ID
+                    summoner_url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+                    async with session.get(summoner_url, headers=headers) as summoner_response:
+                        if summoner_response.status != 200:
+                            return False, "Could not fetch summoner data."
+                        
+                        summoner_data = await summoner_response.json()
+                        summoner_id = summoner_data.get("id")
+                        
+                        # Step 3: Get ranked stats
+                        ranked_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
+                        async with session.get(ranked_url, headers=headers) as ranked_response:
+                            if ranked_response.status != 200:
+                                return False, "Could not fetch ranked data."
+                            
+                            ranked_data = await ranked_response.json()
+                            
+                            # Look for SOLO_DUO queue data
+                            api_rank = "UNRANKED"
+                            for queue_data in ranked_data:
+                                if queue_data.get("queueType") == "RANKED_SOLO_5x5":
+                                    api_rank = queue_data.get("tier", "UNRANKED")
+                                    break
+                            
+                            # Map rank to tier
+                            rank_to_tier = {
+                                "IRON": 7,
+                                "BRONZE": 6,
+                                "SILVER": 6,
+                                "GOLD": 5,
+                                "PLATINUM": 4,
+                                "EMERALD": 3,
+                                "DIAMOND": 3,
+                                "MASTER": 2,
+                                "GRANDMASTER": 1,
+                                "CHALLENGER": 1
+                            }
+                            api_tier = rank_to_tier.get(api_rank, 7)
+                            
+                            # Check if rank changed
+                            if current_db_rank != api_rank:
+                                # Update database with new rank
+                                await conn.execute(
+                                    "UPDATE PlayerStats SET PlayerRank = ?, PlayerTier = ? WHERE DiscordID = ?",
+                                    (api_rank, api_tier, player_id)
+                                )
+                                await conn.commit()
+                                
+                                return True, f"Your rank has changed from {current_db_rank} to {api_rank}!"
+                            
+                            return False, "Your rank has not changed."
+                        
+    except Exception as e:
+        print(f"Error checking rank: {e}")
+        return False, f"Error checking rank: {str(e)}"
+
 async def update_username(player):
     try:
         current_username = player.display_name
@@ -194,16 +293,58 @@ async def link(member, riot_id: str):
     
     # Verify that the Riot ID exists using the Riot API
     headers = {"X-Riot-Token": api_key}
-    url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{summoner_name}/{tagline}"
+    account_url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{summoner_name}/{tagline}"
     verified = False  # Default to not verified
+    player_rank = "UNRANKED"
+    player_tier = 7  # Default to lowest tier
 
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
+            # Step 1: Get account info
+            async with session.get(account_url, headers=headers) as response:
                 if response.status == 200:
                     # Riot ID exists
-                    data = await response.json()
+                    account_data = await response.json()
                     verified = True
+                    puuid = account_data.get("puuid")
+                    
+                    # Step 2: Get Summoner ID from PUUID (for NA1 region)
+                    summoner_url = f"https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{puuid}"
+                    async with session.get(summoner_url, headers=headers) as summoner_response:
+                        if summoner_response.status == 200:
+                            summoner_data = await summoner_response.json()
+                            summoner_id = summoner_data.get("id")
+                            
+                            # Step 3: Get ranked stats (focusing on SOLO_DUO queue)
+                            ranked_url = f"https://na1.api.riotgames.com/lol/league/v4/entries/by-summoner/{summoner_id}"
+                            async with session.get(ranked_url, headers=headers) as ranked_response:
+                                if ranked_response.status == 200:
+                                    ranked_data = await ranked_response.json()
+                                    
+                                    # Look for SOLO_DUO queue data
+                                    for queue_data in ranked_data:
+                                        if queue_data.get("queueType") == "RANKED_SOLO_5x5":
+                                            player_rank = queue_data.get("tier", "UNRANKED")
+                                            
+                                            # Map rank to tier based on matchmaking logic
+                                            rank_to_tier = {
+                                                "IRON": 7,
+                                                "BRONZE": 6,
+                                                "SILVER": 6,
+                                                "GOLD": 5,
+                                                "PLATINUM": 4,
+                                                "EMERALD": 3,
+                                                "DIAMOND": 3,
+                                                "MASTER": 2,
+                                                "GRANDMASTER": 1,
+                                                "CHALLENGER": 1
+                                            }
+                                            player_tier = rank_to_tier.get(player_rank, 7)
+                                            break
+                                else:
+                                    print(f"Warning: Could not fetch ranked data. Status: {ranked_response.status}")
+                        else:
+                            print(f"Warning: Could not fetch summoner data. Status: {summoner_response.status}")
                 else:
                     # Failed to verify Riot ID
                     error_msg = await response.text()
@@ -217,7 +358,6 @@ async def link(member, riot_id: str):
                         return f"ERROR: Riot API key has expired or doesn't have sufficient permissions. Please obtain a new key from the Riot Developer Portal."
                     else:
                         return f"ERROR: API Error (status {response.status}). This may be due to API key issues or service problems."
-                    
     except aiohttp.ClientError as e:
         return f"Network error connecting to Riot API: {e}. Please check your internet connection and try again."
     except Exception as e:
@@ -232,20 +372,34 @@ async def link(member, riot_id: str):
                     result = await cursor.fetchone()
 
                 if result:
-                    # Update the existing record with the new Riot ID
+                    # Update the existing record with the new Riot ID and rank information
                     await conn.execute(
-                        "UPDATE PlayerStats SET PlayerRiotID = ? WHERE DiscordID = ?",
-                        (riot_id, str(member.id))
+                        """
+                        UPDATE PlayerStats
+                        SET PlayerRiotID = ?, PlayerRank = ?, PlayerTier = ?
+                        WHERE DiscordID = ?
+                        """,
+                        (riot_id, player_rank, player_tier, str(member.id))
                     )
                 else:
                     # Insert a new record if the user doesn't exist in the database
                     await conn.execute(
-                        "INSERT INTO PlayerStats (DiscordID, DiscordUsername, PlayerRiotID) VALUES (?, ?, ?)",
-                        (str(member.id), member.display_name, riot_id)
+                        """
+                        INSERT INTO PlayerStats
+                        (DiscordID, DiscordUsername, PlayerRiotID, PlayerRank, PlayerTier)
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (str(member.id), member.display_name, riot_id, player_rank, player_tier)
                     )
 
                 await conn.commit()
-                return f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account."
+                
+                # Formulate a message including the rank
+                rank_message = f" Your rank has been determined to be {player_rank}."
+                if player_rank == "UNRANKED":
+                    rank_message = " Your rank could not be determined or you're unranked."
+                    
+                return f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account.{rank_message}"
 
             except aiosqlite.IntegrityError as e:
                 # Handle UNIQUE constraint violation (i.e., Riot ID already linked)
