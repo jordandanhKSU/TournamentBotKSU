@@ -15,6 +15,7 @@ async def get_db_connection():
 
 async def initialize_database():
     async with aiosqlite.connect(DB_PATH) as conn:
+        # Create PlayerStats table
         await conn.execute('''
             CREATE TABLE IF NOT EXISTS "PlayerStats" (
                 "DiscordID" TEXT NOT NULL UNIQUE,
@@ -33,6 +34,26 @@ async def initialize_database():
                 PRIMARY KEY("DiscordID")
             )
         ''')
+        
+        # Create PlayerMatches table to store match history with roles
+        await conn.execute('''
+            CREATE TABLE IF NOT EXISTS "PlayerMatches" (
+                "matchID" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "Result" TEXT NOT NULL,
+                "blueTop" TEXT NOT NULL,
+                "blueJungle" TEXT NOT NULL,
+                "blueMid" TEXT NOT NULL,
+                "blueBot" TEXT NOT NULL,
+                "blueSupport" TEXT NOT NULL,
+                "redTop" TEXT NOT NULL,
+                "redJungle" TEXT NOT NULL,
+                "redMid" TEXT NOT NULL,
+                "redBot" TEXT NOT NULL,
+                "redSupport" TEXT NOT NULL,
+                "MVP" TEXT
+            )
+        ''')
+        
         await conn.commit()
 
 def update_excel(discord_id, player_data):
@@ -488,7 +509,122 @@ async def unlink_riot_id(discord_id: str):
         
         return f"Successfully unlinked Riot ID '{current_riot_id}' from your Discord account."
 
+# Store match data with player roles in the PlayerMatches table
+async def store_match_data(game_data, result, mvp_id=None):
+    """
+    Store match data in the PlayerMatches table with role assignments.
+    
+    Args:
+        game_data: Dictionary containing 'blue' and 'red' team player lists
+        result: String indicating which team won ('blue' or 'red')
+        mvp_id: Discord ID of the MVP player (or None if MVP voting was skipped)
+    """
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # Player arrays are already in role order: Top, Jungle, Mid, Bot, Support
+        blue_team = game_data["blue"]
+        red_team = game_data["red"]
+        
+        # Ensure both teams have 5 players
+        if len(blue_team) != 5 or len(red_team) != 5:
+            print(f"Error: Teams must have exactly 5 players. Blue: {len(blue_team)}, Red: {len(red_team)}")
+            return False
+        
+        # Insert match data with role assignments
+        await conn.execute("""
+            INSERT INTO PlayerMatches (
+                Result,
+                blueTop, blueJungle, blueMid, blueBot, blueSupport,
+                redTop, redJungle, redMid, redBot, redSupport,
+                MVP
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            result,
+            blue_team[0].discord_id, blue_team[1].discord_id, blue_team[2].discord_id,
+            blue_team[3].discord_id, blue_team[4].discord_id,
+            red_team[0].discord_id, red_team[1].discord_id, red_team[2].discord_id,
+            red_team[3].discord_id, red_team[4].discord_id,
+            mvp_id
+        ))
+        
+        await conn.commit()
+        return True
+
+# Comprehensive function to update all player stats after a match
+async def update_all_player_stats(game_data, result, mvp_id=None):
+    """
+    Update all player statistics after a match completes.
+    
+    Args:
+        game_data: Dictionary containing 'blue' and 'red' team player lists
+        result: String indicating which team won ('blue' or 'red')
+        mvp_id: Discord ID of the MVP player (or None if MVP voting was skipped)
+    """
+    async with aiosqlite.connect(DB_PATH) as conn:
+        blue_team = game_data["blue"]
+        red_team = game_data["red"]
+        all_players = blue_team + red_team
+        
+        # Determine winning team
+        winners = blue_team if result == "blue" else red_team
+        
+        # Update all players' participation and games played
+        for player in all_players:
+            player_id = str(player.discord_id)
+            
+            # Check if player exists in database
+            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (player_id,)) as cursor:
+                player_exists = await cursor.fetchone()
+            
+            if not player_exists:
+                print(f"Warning: Player {player_id} not found in database.")
+                continue
+            
+            # Update participation for all players
+            await conn.execute(
+                "UPDATE PlayerStats SET Participation = Participation + 1 WHERE DiscordID = ?",
+                (player_id,)
+            )
+            
+            # Update games played for all players
+            await conn.execute(
+                "UPDATE PlayerStats SET GamesPlayed = GamesPlayed + 1 WHERE DiscordID = ?",
+                (player_id,)
+            )
+        
+        # Update wins for winning team
+        for player in winners:
+            player_id = str(player.discord_id)
+            await conn.execute(
+                "UPDATE PlayerStats SET Wins = Wins + 1 WHERE DiscordID = ?",
+                (player_id,)
+            )
+        
+        # Update MVP stat if applicable
+        if mvp_id:
+            await conn.execute(
+                "UPDATE PlayerStats SET MVPs = MVPs + 1, TotalPoints = TotalPoints + 1 WHERE DiscordID = ?",
+                (mvp_id,)
+            )
+        
+        # Update TotalPoints for all players
+        for player in all_players:
+            player_id = str(player.discord_id)
+            
+            # TotalPoints = Participation + Wins + MVPs - ToxicityPoints
+            await conn.execute("""
+                UPDATE PlayerStats
+                SET TotalPoints = Participation + Wins + MVPs - ToxicityPoints
+                WHERE DiscordID = ?
+            """, (player_id,))
+            
+            # Update win rate
+            await update_win_rate(conn, player_id)
+        
+        await conn.commit()
+
 # function that adds an mvp point to a player
+# This function is kept for backward compatibility but is no longer used directly
+# MVP points are now handled by update_all_player_stats
 async def add_mvp_point(member):
     async with aiosqlite.connect(DB_PATH) as conn:
         # tries to find the user in the PlayerStats table and saves the result
