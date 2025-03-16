@@ -138,6 +138,55 @@ async def update_toxicity_command(interaction: discord.Interaction, discord_id: 
         )
 
 
+@bot.tree.command(
+    name="unlink",
+    description="Unlink your Riot ID from your Discord account",
+    guild=MY_GUILD
+)
+async def unlink_riot_id_command(interaction: discord.Interaction):
+    """Unlinks the user's Riot ID from their Discord account."""
+    # Defer response while we process
+    await interaction.response.defer(ephemeral=True)
+    
+    try:
+        # Call the unlink function
+        result = await databaseManager.unlink_riot_id(str(interaction.user.id))
+        await interaction.followup.send(result, ephemeral=True)
+    except Exception as e:
+        await interaction.followup.send(
+            f"An unexpected error occurred: {str(e)}",
+            ephemeral=True
+        )
+
+
+@bot.tree.command(
+    name="link",
+    description="Link your Discord account with your Riot ID",
+    guild=MY_GUILD
+)
+async def link_riot_id(interaction: discord.Interaction, riot_id: str):
+    """Links the user's Discord account with their Riot ID."""
+    # Defer response while we process
+    await interaction.response.defer(ephemeral=True)
+    
+    try:
+        # Call the link function which now directly returns a message
+        result = await databaseManager.link(interaction.user, riot_id)
+        
+        # Just use plain ephemeral messages instead of embeds
+        if "ERROR:" in result:
+            # Add suggestion for API key issues
+            result += "\n\nPlease verify your Riot API key or obtain a new one from the Riot Developer Portal."
+            
+        await interaction.followup.send(result, ephemeral=True)
+    
+    except Exception as e:
+        await interaction.followup.send(
+            f"An unexpected error occurred: {str(e)}",
+            ephemeral=True
+        )
+
+
 # ========== Role Preference System ==========
 
 class RoleSelect(discord.ui.Select):
@@ -278,12 +327,22 @@ class StartGameView(discord.ui.View):
         super().__init__(timeout=None)
         self.creator_id = creator_id
         self.checked_in_users = []
+        self.volunteers = []  # Track users who volunteer to be removed first
 
     @discord.ui.button(label="Check In", style=discord.ButtonStyle.green)
     async def check_in_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Handle check-in requests from users."""
         if any(user.id == interaction.user.id for user in self.checked_in_users):
             await interaction.response.send_message("You've already checked in!", ephemeral=True)
+            return
+        
+        # Check if user has a Riot ID linked
+        player_info = await databaseManager.get_player_info(str(interaction.user.id))
+        if player_info is None or player_info.player_riot_id is None:
+            await interaction.response.send_message(
+                "You need to link your Riot ID before checking in. Use the `/link` command to link your account.",
+                ephemeral=True
+            )
             return
         
         await databaseManager.update_username(interaction.user)
@@ -299,10 +358,37 @@ class StartGameView(discord.ui.View):
             return
         
         self.checked_in_users = [user for user in self.checked_in_users if user.id != interaction.user.id]
+        # Also remove from volunteers if they were in that list
+        if interaction.user.id in [volunteer.id for volunteer in self.volunteers]:
+            self.volunteers = [volunteer for volunteer in self.volunteers if volunteer.id != interaction.user.id]
+        
         await self.update_embed(interaction)
         await interaction.response.send_message("You've left the check-in list.", ephemeral=True)
+    
+    @discord.ui.button(label="Volunteer", style=discord.ButtonStyle.blurple)
+    async def volunteer_button(self, interaction: discord.Interaction, button: discord.ui.Button):
+        """Handle requests to volunteer to be cut from games first."""
+        # Check if user is checked in
+        if not any(user.id == interaction.user.id for user in self.checked_in_users):
+            await interaction.response.send_message("You're not checked in! Please check in first.", ephemeral=True)
+            return
+            
+        # Check if already volunteered
+        if any(volunteer.id == interaction.user.id for volunteer in self.volunteers):
+            # Remove from volunteers
+            self.volunteers = [volunteer for volunteer in self.volunteers if volunteer.id != interaction.user.id]
+            await interaction.response.send_message("You are no longer volunteering to be cut first.", ephemeral=True)
+        else:
+            # Add to volunteers
+            for user in self.checked_in_users:
+                if user.id == interaction.user.id:
+                    self.volunteers.append(user)
+                    break
+            await interaction.response.send_message("You have volunteered to be cut first if needed.", ephemeral=True)
+        
+        await self.update_embed(interaction)
 
-    @discord.ui.button(label="Start\nGame", style=discord.ButtonStyle.grey)
+    @discord.ui.button(label="Start\nGame", style=discord.ButtonStyle.green)
     async def start_game_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Handle game start process initiated by the creator."""
         if interaction.user.id != self.creator_id:
@@ -310,12 +396,7 @@ class StartGameView(discord.ui.View):
             return
 
         await interaction.response.defer()
-
-        # Disable all buttons to prevent further check-ins
-        for child in self.children:
-            child.disabled = True
-        await interaction.message.edit(view=self)
-
+        
         # Build a list of Player objects from the check-in list
         players = []
         for user in self.checked_in_users:
@@ -326,11 +407,38 @@ class StartGameView(discord.ui.View):
         if not players:
             await interaction.followup.send("No valid players found in the check-in list!", ephemeral=True)
             return
+            
+        # Check if we have at least 10 players (minimum required for one game)
+        if len(players) < 10:
+            await interaction.followup.send(
+                f"Not enough players to start a game. You need at least 10 players, but only have {len(players)}.",
+                ephemeral=True
+            )
+            return
+            
+        # Only disable buttons if we have enough players and are actually starting the game
+        for child in self.children:
+            child.disabled = True
+        await interaction.message.edit(view=self)
 
-        # Remove players randomly until count is a multiple of 10
+        # Get list of volunteers who are playing (they have player objects)
+        volunteer_players = []
+        for volunteer in self.volunteers:
+            for player in players:
+                if str(volunteer.id) == player.discord_id:
+                    volunteer_players.append(player)
+                    break
+        
+        # Remove players until count is a multiple of 10, prioritizing volunteers
         cut_players = []
         while len(players) % 10 != 0:
-            removed = random.choice(players)
+            if volunteer_players:
+                # Remove a volunteer first if available
+                removed = volunteer_players.pop(0)
+            else:
+                # Otherwise remove a random player
+                removed = random.choice(players)
+            
             players.remove(removed)
             cut_players.append(removed)
         
@@ -400,6 +508,14 @@ class StartGameView(discord.ui.View):
         
         embed.clear_fields()
         embed.add_field(name="Checked-in Users", value=checkin_text, inline=False)
+        
+        # Add volunteers section if there are any
+        if self.volunteers:
+            volunteer_mentions = [volunteer.mention for volunteer in self.volunteers]
+            volunteer_rows = [" ".join(volunteer_mentions[i:i+5]) for i in range(0, len(volunteer_mentions), 5)]
+            volunteer_text = "\n".join(volunteer_rows)
+            embed.add_field(name="Volunteers to be Cut First", value=volunteer_text, inline=False)
+        
         await interaction.message.edit(embed=embed)
 
 
@@ -706,7 +822,7 @@ class GlobalSwapControlView(discord.ui.View):
         button.label = "Stop Swapping" if global_game_state.swap_mode else "Swap"
         await interaction.message.edit(view=self)
     
-    @discord.ui.button(label="Finalize Games", style=discord.ButtonStyle.success, row=0)
+    @discord.ui.button(label="Finalize Games", style=discord.ButtonStyle.blurple, row=0)
     async def finalize_button(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Finalize games and enable win declaration."""
         global global_game_state

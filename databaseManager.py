@@ -164,77 +164,106 @@ async def update_username(player):
 
 # member was interaction: discord.Interaction
 async def link(member, riot_id: str):
+    """
+    Link a Discord user's account with their Riot ID.
+    
+    Args:
+        member: The Discord member object
+        riot_id: The Riot ID in format 'username#tagline'
+    
+    Returns:
+        A message string indicating the result of the operation
+    """
     # Riot ID is in the format 'username#tagline', e.g., 'jacstogs#1234'
     if '#' not in riot_id:
-        return print("Could not find # in riotID")
+        return "Invalid Riot ID format. Must include a '#' character (e.g., 'username#tagline')."
 
     # Split the Riot ID into name and tagline
     summoner_name, tagline = riot_id.split('#', 1)
     summoner_name = summoner_name.strip()
     tagline = tagline.strip()
+    
+    # Check if either part is empty
+    if not summoner_name or not tagline:
+        return "Invalid Riot ID format. Both username and tagline must be provided."
 
-    # Verify that the Riot ID exists using the Riot API
+    # Check if API key exists
     api_key = os.getenv("RIOT_API_KEY")
+    if not api_key:
+        return "ERROR: Riot API key not found. Please add a valid API key to your environment variables."
+    
+    # Verify that the Riot ID exists using the Riot API
     headers = {"X-Riot-Token": api_key}
     url = f"https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{summoner_name}/{tagline}"
+    verified = False  # Default to not verified
 
     try:
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
-                    # Riot ID exists, proceed to link it
-                    data = await response.json()  # Get the response data
-
-                    # Debugging: Print the data to see what comes back from the API
-                    print(f"Riot API response: {data}")
-
-                    async with aiosqlite.connect(DB_PATH) as conn:
-                        try:
-                            # Use member's id for database operations
-                            async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
-                                result = await cursor.fetchone()
-
-                            if result:
-                                # Update the existing record with the new Riot ID
-                                await conn.execute(
-                                    "UPDATE PlayerStats SET PlayerRiotID = ? WHERE DiscordID = ?",
-                                    (riot_id, str(member.id))
-                                )
-                            else:
-                                # Insert a new record if the user doesn't exist in the database
-                                await conn.execute(
-                                    "INSERT INTO PlayerStats (DiscordID, DiscordUsername, PlayerRiotID) VALUES (?, ?, ?)",
-                                    (str(member.id), member.display_name, riot_id)
-                                )
-
-                            await conn.commit()
-
-                            print(f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account.")
-
-                        except aiosqlite.IntegrityError as e:
-                            # Handle UNIQUE constraint violation (i.e., Riot ID already linked)
-                            if 'UNIQUE constraint failed: PlayerStats.PlayerRiotID' in str(e):
-                                # Riot ID is already linked to another user
-                                async with conn.execute("""
-                                    SELECT DiscordID, DiscordUsername FROM PlayerStats WHERE PlayerRiotID = ?
-                                """, (riot_id,)) as cursor:
-                                    existing_user_data = await cursor.fetchone()
-
-                                if existing_user_data:
-                                    existing_user_id, existing_username = existing_user_data
-                                    print(f"Error: This Riot ID is already linked to another Discord user: <@{existing_user_id}>. "
-                                          "If this is a mistake, please contact an administrator.")
-                            else:
-                                raise e  # Reraise the error if it's not related to UNIQUE constraint
+                    # Riot ID exists
+                    data = await response.json()
+                    verified = True
                 else:
-                    # Riot ID does not exist or other error
+                    # Failed to verify Riot ID
                     error_msg = await response.text()
-                    print(f"Riot API error response: {error_msg}")
-                    print(f"The Riot ID '{riot_id}' could not be found. Please double-check and try again.")
+                    if response.status == 404:
+                        return f"The Riot ID '{riot_id}' could not be found. Please double-check and try again."
+                    elif response.status == 400:
+                        return f"ERROR: Bad Request. This is likely due to an invalid or expired API key format."
+                    elif response.status == 401:
+                        return f"ERROR: Invalid Riot API key. Please verify your API key or obtain a new one from the Riot Developer Portal."
+                    elif response.status == 403:
+                        return f"ERROR: Riot API key has expired or doesn't have sufficient permissions. Please obtain a new key from the Riot Developer Portal."
+                    else:
+                        return f"ERROR: API Error (status {response.status}). This may be due to API key issues or service problems."
                     
+    except aiohttp.ClientError as e:
+        return f"Network error connecting to Riot API: {e}. Please check your internet connection and try again."
     except Exception as e:
-        print(f"An error occurred while connecting to the Riot API: {e}")
-        print("An unexpected error occurred while trying to link your Riot ID. Please try again later.")
+        return f"Unexpected error during API validation: {e}. Please try again later."
+
+    # Only proceed if verification passed
+    if verified:
+        async with aiosqlite.connect(DB_PATH) as conn:
+            try:
+                # Use member's id for database operations
+                async with conn.execute("SELECT * FROM PlayerStats WHERE DiscordID = ?", (str(member.id),)) as cursor:
+                    result = await cursor.fetchone()
+
+                if result:
+                    # Update the existing record with the new Riot ID
+                    await conn.execute(
+                        "UPDATE PlayerStats SET PlayerRiotID = ? WHERE DiscordID = ?",
+                        (riot_id, str(member.id))
+                    )
+                else:
+                    # Insert a new record if the user doesn't exist in the database
+                    await conn.execute(
+                        "INSERT INTO PlayerStats (DiscordID, DiscordUsername, PlayerRiotID) VALUES (?, ?, ?)",
+                        (str(member.id), member.display_name, riot_id)
+                    )
+
+                await conn.commit()
+                return f"Your Riot ID '{riot_id}' has been successfully linked to your Discord account."
+
+            except aiosqlite.IntegrityError as e:
+                # Handle UNIQUE constraint violation (i.e., Riot ID already linked)
+                if 'UNIQUE constraint failed: PlayerStats.PlayerRiotID' in str(e):
+                    # Riot ID is already linked to another user
+                    async with conn.execute("""
+                        SELECT DiscordID, DiscordUsername FROM PlayerStats WHERE PlayerRiotID = ?
+                    """, (riot_id,)) as cursor:
+                        existing_user_data = await cursor.fetchone()
+
+                    if existing_user_data:
+                        existing_user_id, existing_username = existing_user_data
+                        return f"Error: This Riot ID is already linked to another Discord user: <@{existing_user_id}>. If this is a mistake, please contact an administrator."
+                else:
+                    return f"Database error: {e}"
+            except Exception as e:
+                return f"An unexpected error occurred while updating the database: {e}"
+    # This else clause is not needed since all code paths in the if block return a value
 
 async def update_toxicity_by_id(discord_id: str):
     async with aiosqlite.connect(DB_PATH) as conn:
@@ -261,7 +290,7 @@ async def update_toxicity_by_id(discord_id: str):
 
 
 
-# function that removes user from the database    
+# function that removes user from the database
 async def remove_user(member):
     async with aiosqlite.connect(DB_PATH) as conn:
         # searches for user in the PlayerStats table and saves the result
@@ -276,6 +305,34 @@ async def remove_user(member):
         await conn.commit()
     
     return f"User {member} has been removed from the database."
+
+# function that unlinks a user's Riot ID from their Discord account
+async def unlink_riot_id(discord_id: str):
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # Check if the user exists and has a linked Riot ID
+        async with conn.execute(
+            "SELECT PlayerRiotID FROM PlayerStats WHERE DiscordID = ?",
+            (discord_id,)
+        ) as cursor:
+            result = await cursor.fetchone()
+        
+        if result is None:
+            return "No account found for this Discord ID."
+        
+        if result[0] is None:
+            return "You don't have a Riot ID linked to your account."
+        
+        # Store the current Riot ID for the response message
+        current_riot_id = result[0]
+        
+        # Set the PlayerRiotID to NULL
+        await conn.execute(
+            "UPDATE PlayerStats SET PlayerRiotID = NULL WHERE DiscordID = ?",
+            (discord_id,)
+        )
+        await conn.commit()
+        
+        return f"Successfully unlinked Riot ID '{current_riot_id}' from your Discord account."
 
 # function that adds an mvp point to a player
 async def add_mvp_point(member):
@@ -328,40 +385,6 @@ async def clear_database():
         await conn.execute("DELETE FROM PlayerStats")
         await conn.commit()
         print("Database cleared successfully.")
-
-async def add_22_players():
-    roles = ["Top", "Jungle", "Mid", "ADC", "Support"]
-    # Mapping of most desirable role to a sample 5-character preference string
-    role_to_pref = {
-        "Top": "15432",     # '1' in position 0 (Top is most desired)
-        "Jungle": "51432",  # '1' in position 1 (Jungle is most desired)
-        "Mid": "54132",     # '1' in position 2 (Mid is most desired)
-        "ADC": "54312",     # '1' in position 3 (ADC is most desired)
-        "Support": "54321"  # '1' in position 4 (Support is most desired)
-    }
-
-    async with aiosqlite.connect(DB_PATH) as conn:
-        for i in range(1, 23):  # IDs 1 to 22
-            # Evenly cycle tiers 1-4
-            tier = ((i - 1) % 4) + 1
-            # Cycle through the roles for most desirable assignment
-            most_desirable = roles[(i - 1) % 5]
-            # Construct username: id + most desirable role + tier (e.g., "1Top4")
-            username = f"{i}{most_desirable}{tier}"
-            # Get the corresponding role preference string
-            role_pref = role_to_pref[most_desirable]
-
-            # Insert the player into the PlayerStats table.
-            # Other columns (e.g., Participation, Wins, etc.) will use their default values.
-            await conn.execute(
-                """
-                INSERT INTO PlayerStats (DiscordID, DiscordUsername, PlayerTier, RolePreference)
-                VALUES (?, ?, ?, ?)
-                """,
-                (str(i), username, tier, role_pref)
-            )
-        await conn.commit()
-        print("22 players have been added to the database.")
 
 class Player:
     def __init__(self, discord_id, username, player_riot_id, participation, wins, mvps,
@@ -428,7 +451,6 @@ async def get_player_info(discord_id: str) -> Player:
 async def main():
     await initialize_database()
     await clear_database()
-    await add_22_players()
     return
 
 if __name__ == "__main__":
