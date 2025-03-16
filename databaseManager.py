@@ -386,6 +386,74 @@ async def clear_database():
         await conn.commit()
         print("Database cleared successfully.")
 
+async def add_30_players_with_ranks():
+    # Ranks from lowest to highest
+    ranks = ["IRON", "BRONZE", "SILVER", "GOLD", "PLATINUM", "EMERALD", "DIAMOND", "MASTER", "GRANDMASTER", "CHALLENGER"]
+    roles = ["Top", "Jungle", "Mid", "Bot", "Support"]
+    # Mapping of most desirable role to a sample 5-character preference string
+    role_to_pref = {
+        "Top": "15432",     # '1' in position 0 (Top is most desired)
+        "Jungle": "51432",  # '1' in position 1 (Jungle is most desired)
+        "Mid": "54132",     # '1' in position 2 (Mid is most desired)
+        "Bot": "54312",     # '1' in position 3 (Bot is most desired)
+        "Support": "54321"  # '1' in position 4 (Support is most desired)
+    }
+    
+    # Map ranks to tiers (lower tier number = higher skill)
+    # Based on Matchmaking.py logic
+    rank_to_tier = {
+        "IRON": 7,
+        "BRONZE": 6,
+        "SILVER": 6,
+        "GOLD": 5,
+        "PLATINUM": 4,
+        "EMERALD": 3,
+        "DIAMOND": 3,
+        "MASTER": 2,
+        "GRANDMASTER": 1,
+        "CHALLENGER": 1
+    }
+    
+    async with aiosqlite.connect(DB_PATH) as conn:
+        # Clear existing players first
+        await conn.execute("DELETE FROM PlayerStats")
+        
+        # Distribute 30 players across all ranks
+        for i in range(1, 31):  # IDs 1 to 30
+            # Determine rank (distribute players across all ranks)
+            rank_index = min(9, (i-1) // 3)  # 3 players per rank
+            rank = ranks[rank_index]
+            
+            # Get corresponding tier
+            tier = rank_to_tier[rank]
+            
+            # Cycle through the roles for most desirable assignment
+            most_desirable = roles[(i-1) % 5]
+            
+            # Construct username: id + rank + role (more concise format)
+            username = f"P{i}_{rank[0:3]}_{most_desirable[0]}"
+            
+            # Set role preference
+            role_pref = role_to_pref[most_desirable]
+            
+            # Create a fake Riot ID
+            riot_id = f"player{i}#{1000+i}"
+            
+            # Insert the player into the PlayerStats table with appropriate rank and tier
+            await conn.execute(
+                """
+                INSERT INTO PlayerStats (
+                    DiscordID, DiscordUsername, PlayerRiotID,
+                    PlayerTier, PlayerRank, RolePreference
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (str(i), username, riot_id, tier, rank, role_pref)
+            )
+        
+        await conn.commit()
+        print("30 players with ranks have been added to the database.")
+
 class Player:
     def __init__(self, discord_id, username, player_riot_id, participation, wins, mvps,
                  toxicity_points, games_played, win_rate, total_points, tier, rank, role_preference):
@@ -451,6 +519,7 @@ async def get_player_info(discord_id: str) -> Player:
 async def main():
     await initialize_database()
     await clear_database()
+    await add_30_players_with_ranks()
     return
 
 if __name__ == "__main__":
