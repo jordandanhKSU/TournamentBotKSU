@@ -221,46 +221,7 @@ def matchmaking_multiple(players):
         red_teams.append(red)
     return blue_teams, red_teams
 
-# --- Testing with sample players ---
-player_list = []
 
-# Create 50 players
-for x in range(20):
-    role_pref = [1, 2, 3, 4, 5]
-    random.shuffle(role_pref)
-    discord_id = f"p{x+1}"
-    username = f"user{x+1}"
-    player_riot_id = f"riot{x+1}"
-    participation = random.randint(1, 100)
-    wins = random.randint(0, 50)
-    mvps = random.randint(0, 10)
-    toxicity_points = random.uniform(0, 10)
-    games_played = random.randint(10, 100)
-    win_rate = random.uniform(0.0, 1.0)
-    total_points = random.randint(0, 1000)
-    rank = random.choice(ranks)
-    # Assign a tier based on rank.
-    if rank in ["iron"]:
-        tier = 7
-    elif rank in ["bronze", "silver"]:
-        tier = 6
-    elif rank in ["gold"]:
-        tier = 5
-    elif rank in ["plat"]:
-        tier = 4
-    elif rank in ["emerald", "diamond"]:
-        tier = 3
-    elif rank in ["master"]:
-        tier = 2
-    elif rank in ["grandmaster", "challenger"]:
-        tier = 1
-    else:
-        tier = 7
-    role_preference = role_pref[:]  # make a copy
-    player_list.append(
-        Player(discord_id, username, player_riot_id, participation, wins, mvps,
-               toxicity_points, games_played, win_rate, total_points, tier, rank, role_preference)
-    )
 
 def main():
     # Wrap all players in a PlayerAdapter.
@@ -277,4 +238,44 @@ def main():
         print_team(red, "Red Team")
 
 if __name__ == '__main__':
+    # --- Testing with sample players ---
+    player_list = []
+
+    # Create 50 players
+    for x in range(20):
+        role_pref = [1, 2, 3, 4, 5]
+        random.shuffle(role_pref)
+        discord_id = f"p{x+1}"
+        username = f"user{x+1}"
+        player_riot_id = f"riot{x+1}"
+        participation = random.randint(1, 100)
+        wins = random.randint(0, 50)
+        mvps = random.randint(0, 10)
+        toxicity_points = random.uniform(0, 10)
+        games_played = random.randint(10, 100)
+        win_rate = random.uniform(0.0, 1.0)
+        total_points = random.randint(0, 1000)
+        rank = random.choice(ranks)
+        # Assign a tier based on rank.
+        if rank in ["iron"]:
+            tier = 7
+        elif rank in ["bronze", "silver"]:
+            tier = 6
+        elif rank in ["gold"]:
+            tier = 5
+        elif rank in ["plat"]:
+            tier = 4
+        elif rank in ["emerald", "diamond"]:
+            tier = 3
+        elif rank in ["master"]:
+            tier = 2
+        elif rank in ["grandmaster", "challenger"]:
+            tier = 1
+        else:
+            tier = 7
+        role_preference = role_pref[:]  # make a copy
+        player_list.append(
+            Player(discord_id, username, player_riot_id, participation, wins, mvps,
+                toxicity_points, games_played, win_rate, total_points, tier, rank, role_preference)
+        )
     main()
