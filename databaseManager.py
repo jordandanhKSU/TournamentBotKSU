@@ -30,7 +30,7 @@ async def initialize_database():
                 "TotalPoints" NUMERIC DEFAULT 0,
                 "PlayerTier" INTEGER DEFAULT 0,
                 "PlayerRank" TEXT DEFAULT 'UNRANKED',
-                "RolePreference" TEXT DEFAULT '55555',
+                "RolePreference" TEXT DEFAULT NULL,
                 PRIMARY KEY("DiscordID")
             )
         ''')

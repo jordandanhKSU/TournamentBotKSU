@@ -115,7 +115,7 @@ async def stats(interaction: discord.Interaction, discord_id: str):
     role_pref = "".join(str(x) for x in player.role_preference) if player.role_preference else "None"
     embed.add_field(name="Role Preference", value=role_pref, inline=True)
     
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    await interaction.response.send_message(embed=embed, ephemeral=False)
 
 
 @bot.tree.command(
@@ -342,10 +342,7 @@ class StartGameView(discord.ui.View):
         
         # Get player info to check for Riot ID and role preference
         player_info = await databaseManager.get_player_info(str(interaction.user.id))
-        
-        # Default role preference in the database is '55555'
-        default_role_pref = "55555"
-        has_role_preference = player_info is not None and player_info.role_preference and "".join(str(x) for x in player_info.role_preference) != default_role_pref
+        has_role_preference = player_info is not None and player_info.role_preference
         has_riot_id = player_info is not None and player_info.player_riot_id is not None
         
         # Check configuration status and send appropriate messages
