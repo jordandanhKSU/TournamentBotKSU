@@ -679,14 +679,54 @@ class GlobalGameState:
         self.game_results = {}  # {game_index: 'blue' or 'red'}
         self.current_voting_game = None  # Currently active voting game index
 
+    def _format_team_data(self, players: list) -> tuple:
+        """
+        Format data for exactly 5 players.
+        
+        Returns a tuple of three newline-delimited strings:
+        - col1: Primary role (by fixed order) and username.
+        - col2: Tier and Rank.
+        - col3: Role Preference list (as returned by get_priority_role_preference()).
+        """
+        primary_roles = ["Top", "Jun", "Mid", "Bot", "Sup"]
+        col1_lines = []
+        col2_lines = []
+        col3_lines = []
+        
+        for i, player in enumerate(players):
+            primary_role = primary_roles[i]
+            col1_lines.append(f"{primary_role}: {player.username}")
+            col2_lines.append(f"Tier {player.tier}: {player.rank}")
+            # Display the full list of role preferences exactly as returned.
+            role_prefs = ", ".join(player.get_priority_role_preference())
+            col3_lines.append(role_prefs if role_prefs else "None")
+        
+        return "\n".join(col1_lines), "\n".join(col2_lines), "\n".join(col3_lines)
+
     def generate_embed(self, game_index: int) -> discord.Embed:
-        """Generate an embed for a specific game."""
+        """
+        Generate an embed for a specific game that takes up more horizontal space.
+        
+        For each team (Blue and Red) there will be 5 inline fields arranged as:
+        1. Field: [Team Color] or [Team] Primary Role & Username
+        3. Field: Tier:Rank
+        5. Field: Role Preference (the full list returned from get_priority_role_preference())
+        """
         game = self.games[game_index]
-        blue_team_str = "\n".join(player.username for player in game["blue"])
-        red_team_str = "\n".join(player.username for player in game["red"])
         embed = discord.Embed(title=f"Game {game_index+1}", color=discord.Color.blue())
-        embed.add_field(name="Blue Team", value=blue_team_str, inline=True)
-        embed.add_field(name="Red Team", value=red_team_str, inline=True)
+        
+        # Blue Team
+        blue_col1, blue_col2, blue_col3 = self._format_team_data(game["blue"])
+        embed.add_field(name="Blue Team", value=blue_col1, inline=True)
+        embed.add_field(name="Tier:Rank", value=blue_col2, inline=True)
+        embed.add_field(name="Role Preference", value=blue_col3, inline=True)
+        
+        # Red Team
+        red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+        embed.add_field(name="Red Team", value=red_col1, inline=True)
+        embed.add_field(name="Tier:Rank", value=red_col2, inline=True)
+        embed.add_field(name="Role Preference", value=red_col3, inline=True)
+        
         return embed
 
     def generate_sitting_out_embed(self) -> discord.Embed:

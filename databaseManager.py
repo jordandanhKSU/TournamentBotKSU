@@ -764,6 +764,12 @@ class Player:
     def __repr__(self):
         return (f"Player({self.discord_id}, {self.username}, Tier: {self.tier}, Rank: {self.rank}, "
                 f"Role Preference: {self.role_preference})")
+    
+    def get_priority_role_preference(self):
+        """Returns a list of roles where the player's preference is 2 or lower."""
+        roles = ["Top", "Jun", "Mid", "Bot", "Sup"]
+        return [roles[i] for i, pref in enumerate(self.role_preference) if int(pref) <= 2]
+
 
 async def get_player_info(discord_id: str) -> Player:
     """
