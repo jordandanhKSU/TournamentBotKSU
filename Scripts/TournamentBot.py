@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from dotenv import load_dotenv, find_dotenv, set_key
-import databaseManager
-import Matchmaking
+import Scripts.databaseManager as databaseManager
+import Scripts.Matchmaking as Matchmaking
 
 # ========== Configuration and Initialization ==========
 
