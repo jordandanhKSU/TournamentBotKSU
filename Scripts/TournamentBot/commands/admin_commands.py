@@ -63,21 +63,56 @@ def setup_admin_commands(bot, MY_GUILD):
         # Check if user has admin permissions
         if not helpers.has_admin_permission(interaction.user):
             await interaction.response.send_message(
-                "You don't have permission to use this command.",
+                embed=discord.Embed(
+                    title="Permission Error",
+                    description="You don't have permission to use this command.",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
+            return
+            
+        # Import the global variable
+        import Scripts.TournamentBot.main as main_module
+        
+        # Check if there is an existing check-in active
+        if main_module.current_checkin_view is not None:
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Check-in Already Active",
+                    description="There is already an active check-in session. Please complete or cancel it before starting a new one.",
+                    color=discord.Color.red()
+                ),
                 ephemeral=True
             )
             return
 
+        # Verify admin channel
         admin_channel_id = os.getenv("ADMIN_CHANNEL")
+        if not admin_channel_id:
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Configuration Error",
+                    description="Admin channel not set. Please run the createAdminChannel command first.",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
+            return
+            
         admin_channel = interaction.guild.get_channel(int(admin_channel_id))
         if not admin_channel:
-            await interaction.followup.send(
-                "Admin channel not found. Please run the createAdminChannel command again.",
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Configuration Error",
+                    description="Admin channel not found. Please run the createAdminChannel command again.",
+                    color=discord.Color.red()
+                ),
                 ephemeral=True
             )
             return
         
-        
+        # Create the check-in embed
         embed = discord.Embed(
             title="Game Check-in",
             description="Click the buttons below to check in for the game!",
@@ -92,7 +127,10 @@ def setup_admin_commands(bot, MY_GUILD):
         
         embed.set_footer(text="A minimum of 10 players is required to start a game")
         
+        # Create the check-in view and store it in the global variable
         view = StartGameView(interaction.user.id)
+        main_module.current_checkin_view = view
+        
         await interaction.response.send_message(embed=embed, view=view)
 
     @bot.tree.command(
@@ -113,7 +151,26 @@ def setup_admin_commands(bot, MY_GUILD):
         # Check if user has admin permissions
         if not helpers.has_admin_permission(interaction.user):
             await interaction.response.send_message(
-                "You don't have permission to use this command.",
+                embed=discord.Embed(
+                    title="Permission Error",
+                    description="You don't have permission to use this command.",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
+            return
+            
+        # Import the global variable
+        import Scripts.TournamentBot.main as main_module
+        
+        # Check if there is an existing check-in active
+        if main_module.current_checkin_view is not None:
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Check-in Already Active",
+                    description="There is already an active check-in session. Please complete or cancel it before starting a new one.",
+                    color=discord.Color.red()
+                ),
                 ephemeral=True
             )
             return
@@ -128,6 +185,7 @@ def setup_admin_commands(bot, MY_GUILD):
         )
         
         view = StartGameView(interaction.user.id)
+        main_module.current_checkin_view = view
         
         # Add dummy members to the check-in list
         from Scripts.TournamentBot.ui.check_in import DummyMember
@@ -150,6 +208,10 @@ def setup_admin_commands(bot, MY_GUILD):
         message = await interaction.channel.send(embed=embed, view=view)
         
         await interaction.followup.send(
-            f"Force-checked in {len(view.checked_in_users)} users.",
+            embed=discord.Embed(
+                title="Force Check-in Complete",
+                description=f"Force-checked in {len(view.checked_in_users)} users.",
+                color=helpers.COLOR_GREEN
+            ),
             ephemeral=True
         )

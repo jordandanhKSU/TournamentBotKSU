@@ -54,6 +54,9 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Global variables to track the state of the application
+current_checkin_view = None
+
 # Reset the game state singleton on startup
 GlobalGameState.reset_instance()
 

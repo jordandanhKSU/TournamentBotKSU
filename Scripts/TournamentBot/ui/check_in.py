@@ -159,7 +159,14 @@ class StartGameView(discord.ui.View):
             button: The start game button
         """
         if interaction.user.id != self.creator_id:
-            await interaction.response.send_message("Only the creator can start the game!", ephemeral=True)
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Permission Error",
+                    description="Only the creator can start the game!",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
             return
 
         await interaction.response.defer()
@@ -302,7 +309,14 @@ class StartGameView(discord.ui.View):
             button: The cancel game button
         """
         if interaction.user.id != self.creator_id:
-            await interaction.response.send_message("Only the creator can cancel the game!", ephemeral=True)
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Permission Error",
+                    description="Only the creator can cancel the game!",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
             return
         
         # Disable all buttons
@@ -317,7 +331,21 @@ class StartGameView(discord.ui.View):
         )
         await interaction.message.edit(embed=embed, view=self)
         
-        await interaction.response.send_message("Check-in has been cancelled.", ephemeral=True)
+        # Reset the global check-in view
+        import sys
+        import os
+        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+        import Scripts.TournamentBot.main as main_module
+        main_module.current_checkin_view = None
+        
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title="Check-in Cancelled",
+                description="The check-in has been cancelled successfully.",
+                color=discord.Color.green()
+            ),
+            ephemeral=True
+        )
 
     async def update_embed(self, interaction: discord.Interaction):
         """
