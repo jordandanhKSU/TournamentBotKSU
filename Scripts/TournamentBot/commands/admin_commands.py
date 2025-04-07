@@ -67,7 +67,17 @@ def setup_admin_commands(bot, MY_GUILD):
                 ephemeral=True
             )
             return
-            
+
+        admin_channel_id = os.getenv("ADMIN_CHANNEL")
+        admin_channel = interaction.guild.get_channel(int(admin_channel_id))
+        if not admin_channel:
+            await interaction.followup.send(
+                "Admin channel not found. Please run the createAdminChannel command again.",
+                ephemeral=True
+            )
+            return
+        
+        
         embed = discord.Embed(
             title="Game Check-in",
             description="Click the buttons below to check in for the game!",

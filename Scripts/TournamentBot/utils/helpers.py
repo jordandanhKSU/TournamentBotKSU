@@ -8,8 +8,8 @@ from typing import Optional, List, Dict, Any, Tuple, Union
 import asyncio
 
 # Constants
-ROLE_NAMES = ["Top", "Jungle", "Mid", "Bot", "Support"]
-ROLE_EMOJIS = {"Top": "🔝", "Jungle": "🌳", "Mid": "🔄", "Bot": "🎯", "Support": "🛡️"}
+ROLE_NAMES = ["Top", "Jun", "Mid", "Bot", "Sup"]
+ROLE_EMOJIS = {"Top": "🏝", "Jun": "🌳", "Mid": "🐐", "Bot": "🎯", "Sup": "🛡️"}
 BUTTON_STYLES = {
     "positive": discord.ButtonStyle.green,
     "negative": discord.ButtonStyle.red,
