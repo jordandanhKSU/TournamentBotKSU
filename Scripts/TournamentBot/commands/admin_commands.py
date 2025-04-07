@@ -71,6 +71,19 @@ def setup_admin_commands(bot, MY_GUILD):
                 ephemeral=True
             )
             return
+        
+        # Check if command is run in admin channel
+        admin_channel_id = os.getenv("ADMIN_CHANNEL")
+        if admin_channel_id and str(interaction.channel.id) == admin_channel_id:
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Invalid Channel",
+                    description="Check-in commands cannot be run in the admin channel.",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
+            return
             
         # Import the global variable
         import Scripts.TournamentBot.main as main_module
@@ -154,6 +167,19 @@ def setup_admin_commands(bot, MY_GUILD):
                 embed=discord.Embed(
                     title="Permission Error",
                     description="You don't have permission to use this command.",
+                    color=discord.Color.red()
+                ),
+                ephemeral=True
+            )
+            return
+        
+        # Check if command is run in admin channel
+        admin_channel_id = os.getenv("ADMIN_CHANNEL")
+        if admin_channel_id and str(interaction.channel.id) == admin_channel_id:
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="Invalid Channel",
+                    description="Check-in commands cannot be run in the admin channel.",
                     color=discord.Color.red()
                 ),
                 ephemeral=True
