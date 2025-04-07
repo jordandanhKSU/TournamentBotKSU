@@ -544,7 +544,7 @@ class GameControlView(discord.ui.View):
                 player_name = getattr(player, "username", "Unknown")
                 # Check if this player is selected for swapping
                 is_selected = (
-                    game_state.swap_mode and
+                    self.global_state.swap_mode and
                     selected_player is not None and
                     selected_player[0] == game_index and
                     selected_player[1] == "blue" and
@@ -570,7 +570,7 @@ class GameControlView(discord.ui.View):
                 player_name = getattr(player, "username", "Unknown")
                 # Check if this player is selected for swapping
                 is_selected = (
-                    game_state.swap_mode and
+                    self.global_state.swap_mode and
                     selected_player is not None and
                     selected_player[0] == game_index and
                     selected_player[1] == "red" and
