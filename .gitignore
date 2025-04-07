@@ -5,5 +5,6 @@
 *.xlsx
 *.txt
 *.pyc
-
+*.log
+*.db
 __pycache__/
