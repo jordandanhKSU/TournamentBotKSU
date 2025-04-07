@@ -54,7 +54,14 @@ def create_game_embed(game_data: Dict[str, Any], game_index: int) -> discord.Emb
         role_name = ROLE_NAMES[i]
         emoji = ROLE_EMOJIS.get(role_name, "")
         player_name = getattr(player, "username", "Unknown")
-        blue_field_value += f"{emoji} **{role_name}**: {player_name}\n"
+        player_tier = getattr(player, "tier", "Unknown")
+        player_rank = getattr(player, "rank", "Unknown")
+
+        blue_field_value += (f"{emoji}\n"
+                             f"**{role_name}**: {player_name}\n"
+                             f"**Rank**: {player_rank}\n"  
+                             f"**Tier**: {player_tier}\n\n"
+                             )
     
     embed.add_field(name="Blue Team", value=blue_field_value or "No players", inline=True)
     
@@ -64,7 +71,14 @@ def create_game_embed(game_data: Dict[str, Any], game_index: int) -> discord.Emb
         role_name = ROLE_NAMES[i]
         emoji = ROLE_EMOJIS.get(role_name, "")
         player_name = getattr(player, "username", "Unknown")
-        red_field_value += f"{emoji} **{role_name}**: {player_name}\n"
+        player_tier = getattr(player, "tier", "Unknown")
+        player_rank = getattr(player, "rank", "Unknown")
+
+        red_field_value += (f"{emoji}\n" 
+                            f"**{role_name}**: {player_name}\n"
+                            f"**Rank**: {player_rank}\n"  
+                            f"**Tier**: {player_tier}\n\n"
+                             )
     
     embed.add_field(name="Red Team", value=red_field_value or "No players", inline=True)
     
@@ -98,30 +112,6 @@ def create_sitting_out_embed(players: List[Any]) -> discord.Embed:
     
     embed.description = player_list or "No players sitting out"
     return embed
-
-def format_player_info(player: Any, include_role: bool = True) -> str:
-    """
-    Format player information for display.
-    
-    Args:
-        player: Player object
-        include_role: Whether to include role information
-        
-    Returns:
-        Formatted player information string
-    """
-    player_name = getattr(player, "username", "Unknown")
-    tier = getattr(player, "tier", None)
-    rank = getattr(player, "rank", "UNRANKED")
-    
-    result = f"**{player_name}** ({rank})"
-    
-    if include_role and hasattr(player, "assigned_role") and player.assigned_role is not None:
-        role_index = player.assigned_role
-        if 0 <= role_index < len(ROLE_NAMES):
-            result += f" - {ROLE_NAMES[role_index]}"
-    
-    return result
 
 # Interaction helpers
 async def safe_respond(
@@ -166,152 +156,6 @@ async def safe_respond(
         print(f"Error responding to interaction: {e}")
         return False
 
-async def defer_or_respond(
-    interaction: discord.Interaction,
-    content: Optional[str] = None,
-    ephemeral: bool = False
-) -> bool:
-    """
-    Defer an interaction or respond with content if provided.
-    
-    Args:
-        interaction: Discord interaction
-        content: Message content (optional)
-        ephemeral: Whether the response should be ephemeral
-        
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        if content:
-            await interaction.response.send_message(content, ephemeral=ephemeral)
-        else:
-            await interaction.response.defer(ephemeral=ephemeral)
-        return True
-    except Exception as e:
-        print(f"Error deferring/responding to interaction: {e}")
-        return False
-
-# Player data processing
-def sort_players_by_tier(players: List[Any]) -> List[Any]:
-    """
-    Sort a list of players by their tier.
-    
-    Args:
-        players: List of players to sort
-        
-    Returns:
-        Sorted list of players
-    """
-    return sorted(players, key=lambda p: getattr(p, "tier", 7))
-
-def calculate_team_balance(team1: List[Any], team2: List[Any]) -> float:
-    """
-    Calculate the balance between two teams.
-    
-    Args:
-        team1: First team
-        team2: Second team
-        
-    Returns:
-        Balance score (lower is better)
-    """
-    if not team1 or not team2:
-        return float('inf')
-    
-    team1_avg_tier = sum(getattr(p, "tier", 7) for p in team1) / len(team1)
-    team2_avg_tier = sum(getattr(p, "tier", 7) for p in team2) / len(team2)
-    
-    return abs(team1_avg_tier - team2_avg_tier)
-
-# UI component helpers
-def create_disabled_view(original_view: discord.ui.View) -> discord.ui.View:
-    """
-    Create a disabled version of a view.
-    
-    Args:
-        original_view: Original view to disable
-        
-    Returns:
-        New view with all components disabled
-    """
-    new_view = discord.ui.View(timeout=original_view.timeout)
-    
-    for item in original_view.children:
-        if isinstance(item, discord.ui.Button):
-            new_button = discord.ui.Button(
-                style=item.style,
-                label=item.label,
-                disabled=True,
-                custom_id=item.custom_id,
-                url=item.url,
-                emoji=item.emoji,
-                row=item.row
-            )
-            new_view.add_item(new_button)
-        elif isinstance(item, discord.ui.Select):
-            new_select = discord.ui.Select(
-                placeholder=item.placeholder,
-                min_values=item.min_values,
-                max_values=item.max_values,
-                options=item.options,
-                disabled=True,
-                custom_id=item.custom_id,
-                row=item.row
-            )
-            new_view.add_item(new_select)
-    
-    return new_view
-
-def get_button_style_for_role(role_name: str) -> discord.ButtonStyle:
-    """
-    Get the button style for a specific role.
-    
-    Args:
-        role_name: Role name
-        
-    Returns:
-        Button style for the role
-    """
-    role_styles = {
-        "Top": discord.ButtonStyle.primary,
-        "Jungle": discord.ButtonStyle.success,
-        "Mid": discord.ButtonStyle.danger,
-        "Bot": discord.ButtonStyle.secondary,
-        "Support": discord.ButtonStyle.success
-    }
-    
-    return role_styles.get(role_name, discord.ButtonStyle.secondary)
-
-# Error handling
-def format_error_message(error: Exception, user_friendly: bool = True) -> str:
-    """
-    Format an error message for display to users.
-    
-    Args:
-        error: Exception object
-        user_friendly: Whether to use user-friendly messages
-        
-    Returns:
-        Formatted error message
-    """
-    if user_friendly:
-        # Map common errors to user-friendly messages
-        error_str = str(error).lower()
-        
-        if "permission" in error_str:
-            return "I don't have permission to do that. Please check my role permissions."
-        elif "not found" in error_str:
-            return "The requested resource couldn't be found."
-        elif "timeout" in error_str or "timed out" in error_str:
-            return "The operation timed out. Please try again later."
-        elif "rate limit" in error_str:
-            return "I'm being rate limited. Please try again in a moment."
-        else:
-            return f"An error occurred: {str(error)}"
-    else:
-        # Return detailed error for logging
-        return f"{type(error).__name__}: {str(error)}"
 
 # Permission helpers
 def has_admin_permission(member: discord.Member) -> bool:

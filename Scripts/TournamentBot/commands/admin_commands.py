@@ -154,7 +154,7 @@ def setup_admin_commands(bot, MY_GUILD):
     async def force_check_in(interaction: discord.Interaction, start_id: int, end_id: int):
         """
         Forcefully check in a range of users by their ID.
-        Useful for testing with a small group of real users.
+        Useful for testing with a small group of fake users.
         
         Args:
             interaction: Discord interaction

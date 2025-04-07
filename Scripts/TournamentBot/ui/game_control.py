@@ -186,30 +186,36 @@ class SkipMVPButton(discord.ui.Button):
         
         # Only admins can skip MVP voting
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can skip MVP voting.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can skip MVP voting.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         # Get the game data
         if self.game_index >= len(game_state.games):
-            await interaction.response.send_message(
-                "Invalid game index.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Error",
+                description="Invalid game index.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         game_data = game_state.games[self.game_index]
         if not game_data.get("result"):
-            await interaction.response.send_message(
-                "Cannot skip MVP voting until a winner is declared.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Error",
+                description="Cannot skip MVP voting until a winner is declared.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
-        # Mark the MVP as skipped and update the UI
-        game_data["mvp"] = "skipped"
+        # Mark the MVP as NULL and update the UI
+        game_data["mvp"] = None
         await game_state.update_all_messages()
         
         # Store match data in database without MVP
@@ -217,15 +223,43 @@ class SkipMVPButton(discord.ui.Button):
             result = game_data["result"]
             await databaseManager.store_match_data(game_data, result)
             await databaseManager.update_all_player_stats(game_data, result)
-            await interaction.response.send_message(
-                f"Skipped MVP for Game {self.game_index + 1}. Results recorded.",
-                ephemeral=True
+            
+            # Success embed
+            embed = discord.Embed(
+                title="MVP Skipped",
+                description=f"Skipped MVP for Game {self.game_index + 1}. Results recorded.",
+                color=discord.Color.blue()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            
+            # Check if all games have results and MVP voting completed or skipped
+            all_resolved = True
+            for i in range(len(game_state.games)):
+                game_data = game_state.games[i]
+                if not game_data.get("result") or (not game_data.get("mvp") and game_state.mvp_voting_active.get(i, False)):
+                    all_resolved = False
+                    break
+            
+            # If all games resolved, update the global control view to show Next Game button
+            if all_resolved:
+                # Get the global control message if it exists
+                if "global_control" in game_state.message_references:
+                    global_message = game_state.message_references["global_control"]
+                    global_view = GlobalControlView(game_state)
+                    global_embed = discord.Embed(
+                        title="Global Game Controls",
+                        description="All games complete. You can now proceed to the next game.",
+                        color=discord.Color.blue()
+                    )
+                    await global_message.edit(embed=global_embed, view=global_view)
+                    
         except Exception as e:
-            await interaction.response.send_message(
-                f"Error recording results: {str(e)}",
-                ephemeral=True
+            error_embed = discord.Embed(
+                title="Error",
+                description=f"Error recording results: {str(e)}",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=error_embed, ephemeral=True)
 
 
 class GameMVPControlView(discord.ui.View):
@@ -244,7 +278,13 @@ class GameMVPControlView(discord.ui.View):
             self.add_item(EndMVPVoteButton(game_index))
             self.add_item(CancelMVPVoteButton(game_index))
         else:
-            self.add_item(SkipMVPButton(game_index))
+            # When voting is not active, add the Skip MVP button
+            # Only if there's a game result but no MVP
+            game_state = GlobalGameState.get_instance()
+            if game_index < len(game_state.games):
+                game_data = game_state.games[game_index]
+                if game_data.get("result") and not game_data.get("mvp"):
+                    self.add_item(SkipMVPButton(game_index))
 
 
 # ===== Game Result and MVP Buttons =====
@@ -277,10 +317,12 @@ class MVPVoteButton(discord.ui.Button):
         """
         # Only admins can start MVP voting
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can start MVP voting.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can start MVP voting.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         game_state = GlobalGameState.get_instance()
@@ -290,6 +332,27 @@ class MVPVoteButton(discord.ui.Button):
         for child in self.view.children:
             child.disabled = True
         await interaction.message.edit(view=self.view)
+        
+        # Check if all games have results and MVP voting completed or skipped
+        all_resolved = True
+        for i in range(len(game_state.games)):
+            game_data = game_state.games[i]
+            if not game_data.get("result") or (not game_data.get("mvp") and game_state.mvp_voting_active.get(i, False)):
+                all_resolved = False
+                break
+        
+        # If all games resolved, update the global control view to show Next Game button
+        if all_resolved:
+            # Get the global control message if it exists
+            if "global_control" in game_state.message_references:
+                global_message = game_state.message_references["global_control"]
+                global_view = GlobalControlView(game_state)
+                global_embed = discord.Embed(
+                    title="Global Game Controls",
+                    description="All games complete. You can now proceed to the next game.",
+                    color=discord.Color.blue()
+                )
+                await global_message.edit(embed=global_embed, view=global_view)
 
 
 class BlueWinButton(discord.ui.Button):
@@ -320,10 +383,12 @@ class BlueWinButton(discord.ui.Button):
         """
         # Only admins can declare winner
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can declare a winner.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can declare a winner.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         game_state = GlobalGameState.get_instance()
@@ -347,15 +412,20 @@ class BlueWinButton(discord.ui.Button):
         # Update the message with new embed
         embed = game_state.generate_embed(self.game_index)
         
-        # Replace this view with MVP voting button
+        # Create new view with MVP voting and Skip MVP buttons
         mvp_view = discord.ui.View(timeout=None)
         mvp_view.add_item(MVPVoteButton(self.game_index, self.blue_team, self.red_team))
+        mvp_view.add_item(SkipMVPButton(self.game_index))
         
         await interaction.message.edit(embed=embed, view=mvp_view)
-        await interaction.response.send_message(
-            f"Marked Blue Team as winner for Game {self.game_index + 1}",
-            ephemeral=True
+        
+        # Create a success embed instead of raw message
+        success_embed = discord.Embed(
+            title="Game Result Recorded",
+            description=f"Blue Team has been marked as the winner for Game {self.game_index + 1}.",
+            color=discord.Color.blue()
         )
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
 
 
 class RedWinButton(discord.ui.Button):
@@ -386,10 +456,12 @@ class RedWinButton(discord.ui.Button):
         """
         # Only admins can declare winner
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can declare a winner.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can declare a winner.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         game_state = GlobalGameState.get_instance()
@@ -413,30 +485,37 @@ class RedWinButton(discord.ui.Button):
         # Update the message with new embed
         embed = game_state.generate_embed(self.game_index)
         
-        # Replace this view with MVP voting button
+        # Create new view with MVP voting and Skip MVP buttons
         mvp_view = discord.ui.View(timeout=None)
         mvp_view.add_item(MVPVoteButton(self.game_index, self.blue_team, self.red_team))
+        mvp_view.add_item(SkipMVPButton(self.game_index))
         
         await interaction.message.edit(embed=embed, view=mvp_view)
-        await interaction.response.send_message(
-            f"Marked Red Team as winner for Game {self.game_index + 1}",
-            ephemeral=True
+        
+        # Create a success embed instead of raw message
+        success_embed = discord.Embed(
+            title="Game Result Recorded",
+            description=f"Red Team has been marked as the winner for Game {self.game_index + 1}.",
+            color=discord.Color.red()
         )
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
 
 
 class GameControlView(discord.ui.View):
     """View for controlling a specific game."""
-    def __init__(self, global_state: GlobalGameState, game_index: int):
+    def __init__(self, global_state: GlobalGameState, game_index: int, show_players: bool = False):
         """
         Initialize game control view.
         
         Args:
             global_state: Global game state instance
             game_index: Index of the game
+            show_players: Whether to show player buttons for swapping
         """
         super().__init__(timeout=None)
         self.global_state = global_state
         self.game_index = game_index
+        self.show_players = show_players
         
         if game_index < len(global_state.games):
             game_data = global_state.games[game_index]
@@ -448,18 +527,69 @@ class GameControlView(discord.ui.View):
                 self.add_item(BlueWinButton(game_index, blue_team, red_team))
                 self.add_item(RedWinButton(game_index, blue_team, red_team))
             else:
-                # If there is a result but no MVP, add MVP button
+                # If there is a result but no MVP, add MVP voting and skip MVP buttons
                 if not game_data.get("mvp"):
                     self.add_item(MVPVoteButton(game_index, blue_team, red_team))
+                    self.add_item(SkipMVPButton(game_index))
             
-            # Add player buttons for team swapping
+            # Only add player buttons if swap mode is active and show_players is true
+            if not self.show_players or not self.global_state.swap_mode:
+                return
+                
+            # Add player buttons for team swapping - Blue team top row, Red team bottom row
+            selected_player = self.global_state.selected_player1
+            
+            # Blue team on top row
             for i, player in enumerate(blue_team):
                 player_name = getattr(player, "username", "Unknown")
-                self.add_item(GamePlayerButton(game_index, "blue", i, player_name))
+                # Check if this player is selected for swapping
+                is_selected = (
+                    game_state.swap_mode and
+                    selected_player is not None and
+                    selected_player[0] == game_index and
+                    selected_player[1] == "blue" and
+                    selected_player[2] == i
+                )
+                
+                # Add role information to player name if available
+                role_index = getattr(player, "assigned_role", None)
+                display_name = player_name
+                if role_index is not None and 0 <= role_index < len(helpers.ROLE_NAMES):
+                    role_name = helpers.ROLE_NAMES[role_index]
+                    emoji = helpers.ROLE_EMOJIS.get(role_name, "")
+                    display_name = f"{emoji} {player_name}"
+                
+                # Create the button with highlighting if selected
+                button = GamePlayerButton(game_index, "blue", i, display_name)
+                if is_selected:
+                    button.label = f"✓ {button.label}"
+                self.add_item(button)
             
+            # Red team on bottom row
             for i, player in enumerate(red_team):
                 player_name = getattr(player, "username", "Unknown")
-                self.add_item(GamePlayerButton(game_index, "red", i, player_name))
+                # Check if this player is selected for swapping
+                is_selected = (
+                    game_state.swap_mode and
+                    selected_player is not None and
+                    selected_player[0] == game_index and
+                    selected_player[1] == "red" and
+                    selected_player[2] == i
+                )
+                
+                # Add role information to player name if available
+                role_index = getattr(player, "assigned_role", None)
+                display_name = player_name
+                if role_index is not None and 0 <= role_index < len(helpers.ROLE_NAMES):
+                    role_name = helpers.ROLE_NAMES[role_index]
+                    emoji = helpers.ROLE_EMOJIS.get(role_name, "")
+                    display_name = f"{emoji} {player_name}"
+                
+                # Create the button with highlighting if selected
+                button = GamePlayerButton(game_index, "red", i, display_name)
+                if is_selected:
+                    button.label = f"✓ {button.label}"
+                self.add_item(button)
 
 
 # ===== MVP Voting UI =====
@@ -482,15 +612,17 @@ class MVPVotingView(discord.ui.View):
         # Add player buttons for each team
         game_data = global_state.games[game_index]
         
+        # Put all blue team buttons on row 0
         blue_team = game_data.get("blue", [])
         for i, player in enumerate(blue_team):
             player_name = getattr(player, "username", "Unknown")
-            self.add_item(PlayerMVPButton(game_index, player, True, i % 3))
+            self.add_item(PlayerMVPButton(game_index, player, True, 0))
         
+        # Put all red team buttons on row 1
         red_team = game_data.get("red", [])
         for i, player in enumerate(red_team):
             player_name = getattr(player, "username", "Unknown")
-            self.add_item(PlayerMVPButton(game_index, player, False, i % 3 + 2))
+            self.add_item(PlayerMVPButton(game_index, player, False, 1))
 
 
 class PlayerMVPButton(discord.ui.Button):
@@ -681,23 +813,43 @@ class ConfirmNextGameView(discord.ui.View):
         
         # Only admins can confirm
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can confirm skipping MVP voting.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can confirm skipping MVP voting.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
-        # Mark all MVP voting as skipped
+        # Mark all MVP voting as NULL (no MVP awarded)
         for i in range(len(self.global_state.games)):
             if self.global_state.game_results.get(i) and not self.global_state.games[i].get("mvp"):
-                self.global_state.games[i]["mvp"] = "skipped"
+                self.global_state.games[i]["mvp"] = None
             
             # Cancel any active MVP voting
             if self.global_state.mvp_voting_active.get(i, False):
                 await self.global_state.cancel_mvp_voting(interaction, i, silent=True)
         
-        # Proceed with next game setup
-        await interaction.response.send_message("Proceeding to next game setup...", ephemeral=True)
+        # Create the next game setup embed
+        next_game_embed = discord.Embed(
+            title="Next Game Setup",
+            description="Skipping MVP voting and proceeding to next game setup...",
+            color=discord.Color.blue()
+        )
+        await interaction.response.send_message(embed=next_game_embed, ephemeral=True)
+        
+        # Update the global control view to show the Next Game button
+        key = "global_control"
+        if key in self.global_state.message_references:
+            message = self.global_state.message_references[key]
+            global_view = GlobalControlView(self.global_state)
+            global_embed = discord.Embed(
+                title="Global Game Controls",
+                description="All games complete. You can now proceed to the next game.",
+                color=discord.Color.blue()
+            )
+            await message.edit(embed=global_embed, view=global_view)
+        
         await self.global_state.fade_all_game_controls()
 
 
@@ -712,6 +864,30 @@ class GlobalControlView(discord.ui.View):
         """
         super().__init__(timeout=None)
         self.global_state = global_state or GlobalGameState.get_instance()
+        
+        # Only add the Next Game button if all games have results and MVPs resolved
+        all_games_complete = True
+        
+        # Helper functions for checking game status
+        def has_result(game_index):
+            return self.global_state.game_results.get(game_index) is not None
+        
+        def is_mvp_resolved(game_index):
+            return (
+                self.global_state.games[game_index].get("mvp") is not None or
+                not self.global_state.mvp_voting_active.get(game_index, False)
+            )
+        
+        # Check if we should show the next game button
+        for i in range(len(self.global_state.games)):
+            if not has_result(i) or not is_mvp_resolved(i):
+                all_games_complete = False
+                break
+        
+        # Only add the Next Game button if all games are complete
+        if not all_games_complete:
+            # Remove the Next Game button by clearing all items
+            self.clear_items()
 
     async def fade_all_game_controls(self):
         """Disable all existing game control views."""
@@ -748,10 +924,12 @@ class GlobalControlView(discord.ui.View):
         """
         # Only admins can proceed to next game
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can proceed to next game setup.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can proceed to next game setup.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         # Helper functions for checking game status
@@ -771,8 +949,27 @@ class GlobalControlView(discord.ui.View):
         all_mvp_resolved = all(is_mvp_resolved(i) for i in range(len(self.global_state.games)))
         
         if not all_games_have_results:
+            embed = discord.Embed(
+                title="Cannot Proceed",
+                description="Cannot proceed to next game until all current games have a declared winner.",
+                color=discord.Color.red()
+            )
+            
+            # List games without results
+            incomplete_games = []
+            for i in range(len(self.global_state.games)):
+                if not has_result(i):
+                    incomplete_games.append(f"Game {i+1}")
+            
+            if incomplete_games:
+                embed.add_field(
+                    name="Games Needing Results",
+                    value="\n".join(incomplete_games),
+                    inline=False
+                )
+            
             await interaction.response.send_message(
-                "Cannot proceed to next game until all current games have a declared winner.",
+                embed=embed,
                 ephemeral=True
             )
             return
@@ -787,6 +984,19 @@ class GlobalControlView(discord.ui.View):
                 ),
                 color=discord.Color.gold()
             )
+            
+            # List games with pending MVP votes
+            pending_mvp_games = []
+            for i in range(len(self.global_state.games)):
+                if not is_mvp_resolved(i):
+                    pending_mvp_games.append(f"Game {i+1}")
+            
+            if pending_mvp_games:
+                confirm_embed.add_field(
+                    name="Games With Pending MVP Votes",
+                    value="\n".join(pending_mvp_games),
+                    inline=False
+                )
             
             confirm_view = ConfirmNextGameView(self.global_state)
             await interaction.response.send_message(
@@ -860,9 +1070,20 @@ class GlobalControlView(discord.ui.View):
         channel = self.global_state.public_channel
         if channel:
             await channel.send(embed=embed, view=new_view)
+        # Use an embed for the followup message instead of raw text
+        success_embed = discord.Embed(
+            title="New Check-In Created",
+            description="Successfully created a new check-in with all previous players auto-checked in.",
+            color=discord.Color.green()
+        )
+        success_embed.add_field(
+            name="Next Steps",
+            value="Players are ready to be assigned to new teams. Click the Start Game button when ready!",
+            inline=False
+        )
         
         await interaction.followup.send(
-            "Created new check-in with all previous players auto-checked in.",
+            embed=success_embed,
             ephemeral=True
         )
 
@@ -890,22 +1111,46 @@ class GlobalSwapControlView(discord.ui.View):
         """
         # Only admins can toggle swap mode
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can toggle swap mode.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can toggle swap mode.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
+        # Toggle swap mode in the game state
         await self.global_state.toggle_swap_mode(interaction)
         
         # Toggle button style based on swap mode
         if self.global_state.swap_mode:
             button.style = discord.ButtonStyle.primary
             button.label = "Swap (Active)"
+            
+            # Update all game controls to show player buttons
+            for i in range(len(self.global_state.games)):
+                key = f"game_control_{i}"
+                if key in self.global_state.message_references:
+                    message = self.global_state.message_references[key]
+                    game_data = self.global_state.games[i]
+                    new_view = GameControlView(self.global_state, i, show_players=True)
+                    embed = self.global_state.generate_embed(i)
+                    await message.edit(embed=embed, view=new_view)
         else:
             button.style = discord.ButtonStyle.secondary
             button.label = "Swap"
+            
+            # Update all game controls to hide player buttons
+            for i in range(len(self.global_state.games)):
+                key = f"game_control_{i}"
+                if key in self.global_state.message_references:
+                    message = self.global_state.message_references[key]
+                    game_data = self.global_state.games[i]
+                    new_view = GameControlView(self.global_state, i, show_players=False)
+                    embed = self.global_state.generate_embed(i)
+                    await message.edit(embed=embed, view=new_view)
         
+        # Update the swap control view
         await interaction.message.edit(view=self)
 
     @discord.ui.button(label="Finalize Games", style=discord.ButtonStyle.blurple, row=0)
@@ -919,10 +1164,12 @@ class GlobalSwapControlView(discord.ui.View):
         """
         # Only admins can finalize games
         if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "Only administrators can finalize games.",
-                ephemeral=True
+            embed = discord.Embed(
+                title="Permission Error",
+                description="Only administrators can finalize games.",
+                color=discord.Color.red()
             )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
         
         # Turn off swap mode
@@ -930,27 +1177,50 @@ class GlobalSwapControlView(discord.ui.View):
         self.global_state.selected_player1 = None
         self.global_state.selected_player2 = None
         
-        # Update all messages with final teams
-        await self.global_state.update_all_messages()
-        
-        # Disable swap controls
-        for child in self.children:
-            child.disabled = True
-        await interaction.message.edit(view=self)
-        
-        # Send team announcements to public channel
+        # Create embedded announcement for the public channel
         channel = self.global_state.public_channel
         if channel:
-            await channel.send("🎮 **Teams have been finalized! Games will begin shortly.**")
+            # Send a proper embed announcement instead of raw text
+            finalize_embed = discord.Embed(
+                title="🎮 Teams Finalized",
+                description="All teams have been finalized. Games will begin shortly.",
+                color=discord.Color.green()
+            )
+            await channel.send(embed=finalize_embed)
             
+            # Send game embeds
             for i in range(len(self.global_state.games)):
                 embed = self.global_state.generate_embed(i)
                 await channel.send(embed=embed)
         
-        await interaction.response.send_message(
-            "Games have been finalized and teams announced.",
-            ephemeral=True
+        # Update all game controls to show winner selection buttons but no player buttons
+        for i in range(len(self.global_state.games)):
+            key = f"game_control_{i}"
+            if key in self.global_state.message_references:
+                message = self.global_state.message_references[key]
+                new_view = GameControlView(self.global_state, i, show_players=False)
+                embed = self.global_state.generate_embed(i)
+                await message.edit(embed=embed, view=new_view)
+        
+        # Hide the swap control message rather than disabling it
+        # This matches the original implementation's UI flow
+        if "swap_control" in self.global_state.message_references:
+            message = self.global_state.message_references["swap_control"]
+            # Create an embed noting the view is inactive
+            embed = discord.Embed(
+                title="Team Balancing Complete",
+                description="Games have been finalized. Please use the winner selection buttons to record game results.",
+                color=discord.Color.blue()
+            )
+            await message.edit(embed=embed, view=None)
+        
+        # Create success feedback as an embed
+        success_embed = discord.Embed(
+            title="Games Finalized",
+            description="Games have been finalized and teams announced.",
+            color=discord.Color.green()
         )
+        await interaction.response.send_message(embed=success_embed, ephemeral=True)
 
 
 # Import at the bottom to avoid circular imports

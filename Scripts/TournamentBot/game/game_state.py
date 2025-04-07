@@ -270,10 +270,23 @@ class GlobalGameState:
             self.auto_end_mvp_voting(game_index, admin_channel)
         )
         
-        # Notify admin
+        # Notify admin using an embed instead of raw message
+        embed = discord.Embed(
+            title="MVP Voting Started",
+            description=f"MVP voting has been started for Game {game_index + 1}.",
+            color=discord.Color.gold()
+        )
+        
+        # Add some helpful information
+        embed.add_field(
+            name="Duration",
+            value="Voting will automatically end in 5 minutes if not ended manually.",
+            inline=False
+        )
+        
         await helpers.safe_respond(
             interaction,
-            content=f"Started MVP voting for Game {game_index + 1}",
+            embed=embed,
             ephemeral=True
         )
     
@@ -469,16 +482,41 @@ class GlobalGameState:
             # Disable the voting view
             await message.edit(embed=embed, view=None)
         
+        # Mark the MVP as None (NULL) and update the database
+        game_data = self.games[game_index]
+        game_data["mvp"] = None
+        
+        # Store match data in database without MVP
+        try:
+            result = game_data.get("result")
+            if result:
+                await databaseManager.store_match_data(game_data, result)
+                await databaseManager.update_all_player_stats(game_data, result)
+                
+                if not silent:
+                    await helpers.safe_respond(
+                        interaction,
+                        content=f"Cancelled MVP voting for Game {game_index + 1}. Results recorded without MVP.",
+                        ephemeral=True
+                    )
+            else:
+                if not silent:
+                    await helpers.safe_respond(
+                        interaction,
+                        content=f"Cancelled MVP voting for Game {game_index + 1}.",
+                        ephemeral=True
+                    )
+        except Exception as e:
+            print(f"Error recording results after cancelling MVP vote: {e}")
+            if not silent:
+                await helpers.safe_respond(
+                    interaction,
+                    content=f"Cancelled MVP voting but encountered an error recording results: {str(e)}",
+                    ephemeral=True
+                )
+        
         # Update admin message
         await self.update_mvp_admin_embed(game_index)
-        
-        # Notify admin
-        if not silent:
-            await helpers.safe_respond(
-                interaction,
-                content=f"Cancelled MVP voting for Game {game_index + 1}",
-                ephemeral=True
-            )
     
     async def update_mvp_admin_embed(self, game_index: int) -> None:
         """
@@ -653,11 +691,28 @@ class GlobalGameState:
         if self.selected_player1 is None:
             # Store first selected player
             self.selected_player1 = (game_index, team, player_index)
+            
+            # Create an embed to show what player is selected
+            embed = discord.Embed(
+                title="Player Selected",
+                description=f"**{player_name}** from **{team.capitalize()} Team** has been selected.",
+                color=discord.Color.blue() if team == "blue" else discord.Color.red()
+            )
+            embed.add_field(
+                name="Next Step",
+                value="Now select another player to swap with.",
+                inline=False
+            )
+            
             await helpers.safe_respond(
                 interaction,
-                content=f"Selected {player_name}. Now select another player to swap with.",
+                embed=embed,
                 ephemeral=True
             )
+            
+            # Update the UI to show the selected player
+            await self.update_all_messages()
+            
         else:
             # Store second selected player
             self.selected_player2 = (game_index, team, player_index)
@@ -672,6 +727,34 @@ class GlobalGameState:
             player1_name = getattr(player1, "username", "Unknown")
             player2_name = getattr(player2, "username", "Unknown")
             
+            # Check if both players have the same role index
+            role_index1 = getattr(player1, "assigned_role", None)
+            role_index2 = getattr(player2, "assigned_role", None)
+            
+            # Create an embed for the swap result
+            embed = discord.Embed(
+                title="Players Swapped",
+                color=discord.Color.green()
+            )
+            
+            if role_index1 != role_index2 and role_index1 is not None and role_index2 is not None:
+                # Show warning about role mismatch
+                embed.description = f"⚠️ **Swapped players with different roles!**"
+                embed.add_field(
+                    name="Player 1",
+                    value=f"{player1_name} - {helpers.ROLE_NAMES[role_index1]}",
+                    inline=True
+                )
+                embed.add_field(
+                    name="Player 2",
+                    value=f"{player2_name} - {helpers.ROLE_NAMES[role_index2]}",
+                    inline=True
+                )
+            else:
+                embed.description = f"Successfully swapped players!"
+                embed.add_field(name="Player 1", value=player1_name, inline=True)
+                embed.add_field(name="Player 2", value=player2_name, inline=True)
+            
             # Perform swap
             self.games[game1][team1][idx1], self.games[game2][team2][idx2] = \
                 self.games[game2][team2][idx2], self.games[game1][team1][idx1]
@@ -685,7 +768,7 @@ class GlobalGameState:
             
             await helpers.safe_respond(
                 interaction,
-                content=f"Swapped {player1_name} with {player2_name}",
+                embed=embed,
                 ephemeral=True
             )
     
@@ -700,8 +783,22 @@ class GlobalGameState:
         self.selected_player1 = None
         self.selected_player2 = None
         
+        # Create an embed response instead of raw message
+        embed = discord.Embed(
+            title="Swap Mode",
+            description=f"Player swapping mode is now **{'enabled' if self.swap_mode else 'disabled'}**",
+            color=discord.Color.green() if self.swap_mode else discord.Color.red()
+        )
+        
+        if self.swap_mode:
+            embed.add_field(
+                name="Instructions",
+                value="Click on player buttons to select them for swapping. Select one player from each team to swap positions.",
+                inline=False
+            )
+        
         await helpers.safe_respond(
             interaction,
-            content=f"Player swapping mode is now {'enabled' if self.swap_mode else 'disabled'}",
+            embed=embed,
             ephemeral=True
         )
