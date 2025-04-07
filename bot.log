@@ -1,0 +1,6 @@
+2025-04-07 04:23:02,414 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-07 04:23:02,415 - TournamentBot - INFO - Starting bot...
+2025-04-07 04:23:02,416 - discord.client - INFO - logging in using static token
+2025-04-07 04:23:02,853 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2c4de70a6bf40dc3112729e9f0cd9877).
+2025-04-07 04:23:04,999 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-07 04:23:05,229 - TournamentBot - INFO - Synced 0 commands
