@@ -115,3 +115,47 @@ TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments b
 2025-04-07 13:42:22,989 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b7f96bd2e4f2d88a8dd4ae8718e6e8c2).
 2025-04-07 13:42:25,033 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
 2025-04-07 13:42:25,246 - TournamentBot - INFO - Synced 0 commands
+2025-04-07 13:45:46,757 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+          ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
+    return self.callback(self.view, interaction, self.item)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
+2025-04-07 13:45:56,543 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+          ~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
+    return self.callback(self.view, interaction, self.item)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
+2025-04-07 13:46:05,004 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=1> for item <SkipMVPButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Skip MVP' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 233, in callback
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 262, in callback
+    await interaction.response.send_message(embed=error_embed, ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
