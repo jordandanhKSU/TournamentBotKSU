@@ -240,8 +240,8 @@ class StartGameView(discord.ui.View):
             
         game_state.admin_channel = admin_channel
             
-        # Create game control messages
-        from Scripts.TournamentBot.ui.game_control import GameControlView
+        # Create game control messages - use relative imports for consistency
+        from ..ui.game_control import GameControlView
         
         # Send game control messages to admin channel
         for i in range(len(games)):
@@ -252,7 +252,7 @@ class StartGameView(discord.ui.View):
         
         # Send sitting out message
         if cut_players:
-            from Scripts.TournamentBot.ui.game_control import SittingOutView
+            from ..ui.game_control import SittingOutView
             
             embed = game_state.generate_sitting_out_embed()
             view = SittingOutView(game_state)
@@ -260,8 +260,8 @@ class StartGameView(discord.ui.View):
             game_state.message_references["sitting_out"] = message
         
         # Create global controls for admins
-        from Scripts.TournamentBot.ui.game_control import GlobalControlView
-        from Scripts.TournamentBot.ui.game_control import GlobalSwapControlView
+        from ..ui.game_control import GlobalControlView
+        from ..ui.game_control import GlobalSwapControlView
         
         # Control for game progression
         global_view = GlobalControlView(game_state)

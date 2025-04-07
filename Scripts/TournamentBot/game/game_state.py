@@ -81,12 +81,12 @@ class GlobalGameState:
         """Check if the game state has been initialized with games."""
         return len(self.games) > 0
     
-    async def initialize_games(self, players: List[Any], sitting_out: List[Any], public_channel: discord.TextChannel) -> None:
+    async def initialize_games(self, games: List[Dict[str, Any]], sitting_out: List[Any], public_channel: discord.TextChannel) -> None:
         """
-        Initialize the games from a list of players.
+        Initialize the games state with pre-created teams.
         
         Args:
-            players: List of players to create games from
+            games: List of game dictionaries with 'blue' and 'red' teams
             sitting_out: List of players sitting out
             public_channel: Channel to post public updates
         """
@@ -101,18 +101,11 @@ class GlobalGameState:
         self.selected_player1 = None
         self.selected_player2 = None
         
-        # Use the matchmaking algorithm to create teams
-        blue_teams, red_teams = Matchmaking.matchmaking_multiple(players)
+        # Store the games directly since matchmaking was already done
+        self.games = games
         
-        # Create game entries
-        for i in range(len(blue_teams)):
-            self.games.append({
-                "blue": blue_teams[i],
-                "red": red_teams[i],
-                "mvp_votes": {},
-                "result": None,
-                "mvp": None
-            })
+        # Initialize voting state for each game
+        for i in range(len(games)):
             self.mvp_voting_active[i] = False
             self.mvp_votes[i] = {}
     
