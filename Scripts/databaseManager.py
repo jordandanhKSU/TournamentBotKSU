@@ -10,8 +10,9 @@ load_dotenv(find_dotenv())
 DB_PATH = os.getenv('DB_PATH')
 SPREADSHEET_PATH = os.path.abspath(os.getenv('SPREADSHEET_PATH'))
 
-async def get_db_connection():
-    return await aiosqlite.connect(DB_PATH)
+db_directory = os.path.dirname(DB_PATH)
+if not os.path.exists(db_directory):
+    os.makedirs(db_directory, exist_ok=True)
 
 async def initialize_database():
     async with aiosqlite.connect(DB_PATH) as conn:
