@@ -72,28 +72,6 @@ If successful, you should see the bot turning its status to online or confirming
 - Skip MVP button: allows admins to skip MVP voting 
 - Next Game / Re-Check-In button: restarts the tournament process 
 
-# Known Bugs 
-  With matchmaking, sometimes the main role is not prioritized. 
-
-  Data from the .db file is not exported correctly. 
-
-  Games Played are getting updated multiple times for some players 
-
-  On a Check In List, the Check In, Leave and Volunteer sometimes do not get disabled when they are no longer needed 
-
-# Left to be Developed 
-
-  - Finish implementation of Docker support 
-  - Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
-  - Proper command to export data from the database to Google Sheets 
-
-# Potential Issues 
-  The matchmaking algorithm has issues balancing with the primary role preferences in mind. The algorithm has trouble prioritizing player role preferences and decides to be optimized for their secondary or tertiary roles. 
-
-  Riot Games API key has problems with not being able to operate under KSU Wi-Fi. 
-
-  Riot Games API key needs to be regenerated every 24 hours.  
-
 # How to Use Bot 
 
 ## /link and /rolepreference 
@@ -155,3 +133,25 @@ This will then be stored in a key to remember calculated teams.
 The algorithm will then create new teams by swapping the players in the team with other positions. These new teams will also be evaluated on a fitness level. The new team with the highest fitness (lower is better), will then be the new team that will be explored. The cycles continue until a team with a desirable fitness level is returned or it has reached a certain epoch.  
 
 The final best determined team is then returned to be used in the tournament 
+
+# Known Bugs 
+  With matchmaking, sometimes the main role is not prioritized. 
+
+  Data from the .db file is not exported correctly. 
+
+  Games Played are getting updated multiple times for some players 
+
+  On a Check In List, the Check In, Leave and Volunteer sometimes do not get disabled when they are no longer needed 
+
+# Left to be Developed 
+
+  - Finish implementation of Docker support 
+  - Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
+  - Proper command to export data from the database to Google Sheets 
+
+# Potential Issues 
+  The matchmaking algorithm has issues balancing with the primary role preferences in mind. The algorithm has trouble prioritizing player role preferences and decides to be optimized for their secondary or tertiary roles. 
+
+  Riot Games API key has problems with not being able to operate under KSU Wi-Fi. 
+
+  Riot Games API key needs to be regenerated every 24 hours.  
