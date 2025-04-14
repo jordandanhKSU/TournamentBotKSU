@@ -59,18 +59,18 @@ If successful, you should see the bot turning its status to online or confirming
 
 ## Admin Commands 
 
--/createadminchannel: Set a channel to an admin channel for game management 
--/checkin: Start the check-in process for the tournament games 
--/toxicity [user_id]: Gives a player a toxicity point 
+- /createadminchannel: Set a channel to an admin channel for game management 
+- /checkin: Start the check-in process for the tournament games 
+- /toxicity [user_id]: Gives a player a toxicity point 
 
 ## Admin Privileges 
 
--Start and Cancel button: allows admins to start or cancel games 
--Swap button: allows the admins to swap players around  
--Finalize Games button: allows the admins to confirm the games with the matchmade teams 
--Start MVP Voting button: allows the admins to start MVP voting which players can pick who the MVP is in a game. 
--Skip MVP button: allows admins to skip MVP voting 
--Next Game / Re-Check-In button: restarts the tournament process 
+- Start and Cancel button: allows admins to start or cancel games 
+- Swap button: allows the admins to swap players around  
+- Finalize Games button: allows the admins to confirm the games with the matchmade teams 
+- Start MVP Voting button: allows the admins to start MVP voting which players can pick who the MVP is in a game. 
+- Skip MVP button: allows admins to skip MVP voting 
+- Next Game / Re-Check-In button: restarts the tournament process 
 
 # Known Bugs 
   With matchmaking, sometimes the main role is not prioritized. 
@@ -83,9 +83,9 @@ If successful, you should see the bot turning its status to online or confirming
 
 # Left to be Developed 
 
-  -Finish implementation of Docker support 
-  -Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
-  -Proper command to export data from the database to Google Sheets 
+  - Finish implementation of Docker support 
+  - Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
+  - Proper command to export data from the database to Google Sheets 
 
 # Potential Issues 
   The matchmaking algorithm has issues balancing with the primary role preferences in mind. The algorithm has trouble prioritizing player role preferences and decides to be optimized for their secondary or tertiary roles. 
@@ -130,16 +130,17 @@ The tournament process keeps going until the “Cancel” button gets clicked in
 
 ## Player Commands 
 
-  -/link: Allow players to connect their Riot ID with their Discord account 
-  -/unlink: Allow players to disconnect their Riot ID with their Discord account 
-  -/stats: Displays player statistics with an embed. 
-  -/rolepreference: Allow players to set their role preferences.  
+  - /link: Allow players to connect their Riot ID with their Discord account 
+  - /unlink: Allow players to disconnect their Riot ID with their Discord account 
+  - /stats: Displays player statistics with an embed. 
+  - /rolepreference: Allow players to set their role preferences.  
 
 ## Player Privileges 
-  -Check In Button: Players can interact with this button to be added to a list of players. 
-  -Leave Button: Players can interact with this button to leave the list. 
-  -Volunteer Button: Players can interact with this button to volunteer to sit out. 
-  -MVP voting: Players can vote who they think is the MVP of a game. 
+
+  - Check In Button: Players can interact with this button to be added to a list of players. 
+  - Leave Button: Players can interact with this button to leave the list. 
+  - Volunteer Button: Players can interact with this button to volunteer to sit out. 
+  - MVP voting: Players can vote who they think is the MVP of a game. 
 
 # Matchmaking Algorithm 
 
