@@ -4,6 +4,18 @@ KSU eSports Tournament Bot Documentation
 
 Download the contents of the GitHub repository and locate “.env.template” file and rename it to .env. This allows us to fill several values for the Discord bot to run.  
 
+```
+# Needed to Filled out Before operating the bot
+DISCORD_TOKEN = 
+DISCORD_GUILD_ID = 
+RIOT_API_KEY =
+
+# Does not need to be filled out
+SPREADSHEET_PATH = PlayerStats.xlsx
+DB_PATH = main_db.db
+ADMIN_CHANNEL=
+```
+
 ## Generating the Discord Bot Token 
 
 Open [Discord Developer Portal](https://discord.com/developers/applications) and create a new application. 
