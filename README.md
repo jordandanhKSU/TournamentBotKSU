@@ -146,7 +146,9 @@ The algorithm will then create new teams by swapping the players in the team wit
 
 The final best determined team is then returned to be used in the tournament 
 
-# Known Bugs 
+# Issues and Future Goals
+
+## Known Bugs 
   With matchmaking, sometimes the main role is not prioritized. 
 
   Data from the .db file is not exported correctly. 
@@ -155,15 +157,15 @@ The final best determined team is then returned to be used in the tournament
 
   On a Check In List, the Check In, Leave and Volunteer sometimes do not get disabled when they are no longer needed 
 
-# Left to be Developed 
-
-  - Finish implementation of Docker support 
-  - Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
-  - Proper command to export data from the database to Google Sheets 
-
-# Potential Issues 
+## Potential Issues 
   The matchmaking algorithm has issues balancing with the primary role preferences in mind. The algorithm has trouble prioritizing player role preferences and decides to be optimized for their secondary or tertiary roles. 
 
   Riot Games API key has problems with not being able to operate under KSU Wi-Fi. 
 
   Riot Games API key needs to be regenerated every 24 hours.  
+
+## Left to be Developed 
+
+  - Finish implementation of Docker support 
+  - Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
+  - Proper command to export data from the database to Google Sheets 
