@@ -47,6 +47,20 @@ class PlayerAdapter:
     def __getattr__(self, attr):
         # Delegate attribute access to the wrapped player object.
         return getattr(self.player, attr)
+        
+    def get_priority_role_preference(self):
+        """
+        Returns a list of 3-letter role abbreviations for roles with preference of 2 or higher.
+        Role preferences are in the order: Top, Jun, Mid, Bot, Sup
+        """
+        role_names = ["Top", "Jun", "Mid", "Bot", "Sup"]
+        preferred_roles = []
+        
+        for i, preference in enumerate(self.player.role_preference):
+            if preference <= 2:  # Lower numbers are higher preference
+                preferred_roles.append(role_names[i])
+                
+        return preferred_roles
 
     def set_assigned_role(self, assigned_role):
         self.player.assigned_role = assigned_role

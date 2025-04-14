@@ -37,6 +37,10 @@ class StartGameView(discord.ui.View):
         self.creator_id = creator_id
         self.checked_in_users = []
         self.volunteers = []  # Track users who volunteer to be removed first
+        self.check_in_started = True
+        self.channel = None  # Store the channel where check-in is happening
+        self.message_id = None  # Store the message ID of the check-in message
+        self.auto_recheckin = False  # Flag to indicate if this view was auto-created by Next Game
 
     @discord.ui.button(label="Check In", style=discord.ButtonStyle.green)
     async def check_in_button(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -47,7 +51,23 @@ class StartGameView(discord.ui.View):
             interaction: Discord interaction
             button: The check-in button
         """
-        if any(user.id == interaction.user.id for user in self.checked_in_users):
+        # Check for duplicate check-ins, adapted to work with both real Discord users and dummy members
+        user_id = str(interaction.user.id)
+        is_duplicate = False
+        
+        for user in self.checked_in_users:
+            # Handle both real Discord users and dummy members which might have different properties
+            existing_id = getattr(user, 'id', None)
+            if existing_id is None:
+                # For dummy members, might be stored as attribute
+                existing_id = getattr(user, 'discord_id', None)
+            
+            # Convert to string for comparison to be safe
+            if str(existing_id) == user_id:
+                is_duplicate = True
+                break
+        
+        if is_duplicate:
             await interaction.response.send_message("You've already checked in!", ephemeral=True)
             return
         
@@ -108,13 +128,39 @@ class StartGameView(discord.ui.View):
             interaction: Discord interaction
             button: The leave button
         """
-        if not any(user.id == interaction.user.id for user in self.checked_in_users):
+        # Check if user is in the checked-in list using the same robust ID comparison
+        user_id = str(interaction.user.id)
+        is_checked_in = False
+        user_index = -1
+        
+        for idx, user in enumerate(self.checked_in_users):
+            # Handle both real Discord users and dummy members
+            existing_id = getattr(user, 'id', None)
+            if existing_id is None:
+                # For dummy members, might be stored as attribute
+                existing_id = getattr(user, 'discord_id', None)
+            
+            # Convert to string for comparison to be safe
+            if str(existing_id) == user_id:
+                is_checked_in = True
+                user_index = idx
+                break
+        
+        if not is_checked_in:
             await interaction.response.send_message("You're not checked in!", ephemeral=True)
             return
         
-        self.checked_in_users = [user for user in self.checked_in_users if user.id != interaction.user.id]
+        # Remove user from checked-in list
+        if user_index >= 0:
+            self.checked_in_users.pop(user_index)
+        else:
+            # Fallback to original method if index wasn't found
+            self.checked_in_users = [user for user in self.checked_in_users
+                                   if str(getattr(user, 'id', getattr(user, 'discord_id', None))) != user_id]
         # Also remove from volunteers if they were in that list
-        if interaction.user.id in [volunteer.id for volunteer in self.volunteers]:
+        # Check volunteer status using the same ID comparison logic
+        volunteer_ids = [str(getattr(v, 'id', getattr(v, 'discord_id', None))) for v in self.volunteers]
+        if user_id in volunteer_ids:
             self.volunteers = [volunteer for volunteer in self.volunteers if volunteer.id != interaction.user.id]
         
         await self.update_embed(interaction)
@@ -129,223 +175,45 @@ class StartGameView(discord.ui.View):
             interaction: Discord interaction
             button: The volunteer button
         """
-        # Check if user is checked in
-        if not any(user.id == interaction.user.id for user in self.checked_in_users):
+        # Check if user is checked in - use the same robust ID comparison
+        user_id = str(interaction.user.id)
+        is_checked_in = False
+        user_obj = None
+        
+        for user in self.checked_in_users:
+            # Handle both real Discord users and dummy members
+            existing_id = getattr(user, 'id', None)
+            if existing_id is None:
+                # For dummy members, might be stored as attribute
+                existing_id = getattr(user, 'discord_id', None)
+            
+            # Convert to string for comparison to be safe
+            if str(existing_id) == user_id:
+                is_checked_in = True
+                user_obj = user
+                break
+        
+        if not is_checked_in:
             await interaction.response.send_message("You're not checked in! Please check in first.", ephemeral=True)
             return
             
-        # Check if already volunteered
-        if any(volunteer.id == interaction.user.id for volunteer in self.volunteers):
+        # Check if already volunteered - use the same robust ID comparison
+        volunteer_ids = [str(getattr(v, 'id', getattr(v, 'discord_id', None))) for v in self.volunteers]
+        if user_id in volunteer_ids:
             # Remove from volunteers
-            self.volunteers = [volunteer for volunteer in self.volunteers if volunteer.id != interaction.user.id]
+            self.volunteers = [volunteer for volunteer in self.volunteers
+                              if str(getattr(volunteer, 'id', getattr(volunteer, 'discord_id', None))) != user_id]
             await interaction.response.send_message("You are no longer volunteering to be cut first.", ephemeral=True)
         else:
             # Add to volunteers
-            for user in self.checked_in_users:
-                if user.id == interaction.user.id:
-                    self.volunteers.append(user)
-                    break
+            if user_obj:
+                self.volunteers.append(user_obj)
             await interaction.response.send_message("You have volunteered to be cut first if needed.", ephemeral=True)
         
         await self.update_embed(interaction)
 
-    @discord.ui.button(label="Start\nGame", style=discord.ButtonStyle.green, row=1)
-    async def start_game_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """
-        Handle game start process initiated by the creator.
-        
-        Args:
-            interaction: Discord interaction
-            button: The start game button
-        """
-        if interaction.user.id != self.creator_id:
-            await interaction.response.send_message(
-                embed=discord.Embed(
-                    title="Permission Error",
-                    description="Only the creator can start the game!",
-                    color=discord.Color.red()
-                ),
-                ephemeral=True
-            )
-            return
-
-        await interaction.response.defer()
-        
-        # Build a list of Player objects from the check-in list
-        players = []
-        for user in self.checked_in_users:
-            player_obj = await databaseManager.get_player_info(str(user.id))
-            if player_obj is not None:
-                players.append(player_obj)
-
-        if not players:
-            await interaction.followup.send("No valid players found in the check-in list!", ephemeral=True)
-            return
-            
-        # Check if we have at least 10 players (minimum required for one game)
-        if len(players) < 10:
-            await interaction.followup.send(
-                f"Not enough players to start a game. You need at least 10 players, but only have {len(players)}.",
-                ephemeral=True
-            )
-            return
-            
-        # Only disable buttons if we have enough players and are actually starting the game
-        for child in self.children:
-            child.disabled = True
-        await interaction.message.edit(view=self)
-
-        # Get list of volunteers who are playing (they have player objects)
-        volunteer_players = []
-        for volunteer in self.volunteers:
-            for player in players:
-                if str(volunteer.id) == player.discord_id:
-                    volunteer_players.append(player)
-                    break
-        
-        # Remove players until count is a multiple of 10, prioritizing volunteers
-        cut_players = []
-        while len(players) % 10 != 0:
-            if volunteer_players:
-                # Remove a volunteer first if available
-                removed = volunteer_players.pop(0)
-            else:
-                # Otherwise remove a random player
-                removed = random.choice(players)
-            
-            players.remove(removed)
-            cut_players.append(removed)
-        
-        # Use the matchmaking algorithm to create teams
-        blue_teams, red_teams = Matchmaking.matchmaking_multiple(players)
-        games = []
-        for i in range(len(blue_teams)):
-            games.append({"blue": blue_teams[i], "red": red_teams[i]})
-        
-        # Get the game state singleton
-        game_state = GlobalGameState.get_instance()
-        
-        # Initialize the game state with teams and sitting-out players
-        await game_state.initialize_games(games, cut_players, interaction.channel)
-
-        # Find the admin channel
-        admin_channel_id = os.getenv("ADMIN_CHANNEL")
-        if not admin_channel_id:
-            await interaction.followup.send(
-                "Admin channel not set. Please run the createAdminChannel command first.",
-                ephemeral=True
-            )
-            return
-        
-        admin_channel = interaction.guild.get_channel(int(admin_channel_id))
-        if not admin_channel:
-            await interaction.followup.send(
-                "Admin channel not found. Please run the createAdminChannel command again.",
-                ephemeral=True
-            )
-            return
-            
-        game_state.admin_channel = admin_channel
-            
-        # Create game control messages - use relative imports for consistency
-        from ..ui.game_control import GameControlView
-        
-        # Send game control messages to admin channel
-        for i in range(len(games)):
-            embed = game_state.generate_embed(i)
-            view = GameControlView(game_state, i)
-            message = await admin_channel.send(embed=embed, view=view)
-            game_state.message_references[f"game_control_{i}"] = message
-        
-        # Send sitting out message
-        if cut_players:
-            from ..ui.game_control import SittingOutView
-            
-            embed = game_state.generate_sitting_out_embed()
-            view = SittingOutView(game_state)
-            message = await admin_channel.send(embed=embed, view=view)
-            game_state.message_references["sitting_out"] = message
-        
-        # Create global controls for admins
-        from ..ui.game_control import GlobalControlView
-        from ..ui.game_control import GlobalSwapControlView
-        
-        # Control for game progression
-        global_view = GlobalControlView(game_state)
-        message = await admin_channel.send(
-            "Global Game Controls:",
-            view=global_view
-        )
-        game_state.message_references["global_control"] = message
-        
-        # Control for player swapping
-        swap_view = GlobalSwapControlView(game_state)
-        message = await admin_channel.send(
-            "Team Balancing Controls:",
-            view=swap_view
-        )
-        game_state.message_references["swap_control"] = message
-        
-        # Notify everyone about the game start
-        await interaction.channel.send(
-            f"✅ **Games have been created!** Check the admin channel for controls and details.\n"
-            f"Total Players: {len(players)}\n"
-            f"Number of Games: {len(games)}\n"
-            f"Players Sitting Out: {len(cut_players)}"
-        )
-        
-        # Send individual game embeds to the public channel
-        for i in range(len(games)):
-            embed = game_state.generate_embed(i)
-            await interaction.channel.send(embed=embed)
-
-    @discord.ui.button(label="Cancel\nGame", style=discord.ButtonStyle.danger, row=1)
-    async def cancel_checkin_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        """
-        Handle cancellation of the check-in process.
-        
-        Args:
-            interaction: Discord interaction
-            button: The cancel game button
-        """
-        if interaction.user.id != self.creator_id:
-            await interaction.response.send_message(
-                embed=discord.Embed(
-                    title="Permission Error",
-                    description="Only the creator can cancel the game!",
-                    color=discord.Color.red()
-                ),
-                ephemeral=True
-            )
-            return
-        
-        # Disable all buttons
-        for child in self.children:
-            child.disabled = True
-        
-        # Update the message
-        embed = discord.Embed(
-            title="Check-in Cancelled",
-            description="The check-in has been cancelled by the creator.",
-            color=discord.Color.red()
-        )
-        await interaction.message.edit(embed=embed, view=self)
-        
-        # Reset the global check-in view
-        import sys
-        import os
-        sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-        import Scripts.TournamentBot.main as main_module
-        main_module.current_checkin_view = None
-        
-        await interaction.response.send_message(
-            embed=discord.Embed(
-                title="Check-in Cancelled",
-                description="The check-in has been cancelled successfully.",
-                color=discord.Color.green()
-            ),
-            ephemeral=True
-        )
+# Start Game and Cancel Game buttons are removed from check-in UI.
+# They are now only available in the admin channel's Global Controls
 
     async def update_embed(self, interaction: discord.Interaction):
         """
@@ -354,6 +222,13 @@ class StartGameView(discord.ui.View):
         Args:
             interaction: Discord interaction
         """
+        # Store channel and message ID for reference by GlobalPhase1View
+        if self.channel is None:
+            self.channel = interaction.channel
+        
+        if self.message_id is None and interaction.message:
+            self.message_id = interaction.message.id
+        
         embed = discord.Embed(
             title="Game Check-in",
             description="Click the buttons below to check in for the game!",
@@ -381,6 +256,42 @@ class StartGameView(discord.ui.View):
         
         embed.set_footer(text="A minimum of 10 players is required to start a game")
         await interaction.message.edit(embed=embed)
+
+    async def disable_all_buttons(self, message=None, reason="This check-in has been closed."):
+        """
+        Disable all buttons and update the check-in message.
+        
+        Args:
+            message: The message to update (if None, will try to fetch from channel)
+            reason: The reason to display for disabling
+        """
+        # Disable all buttons
+        for child in self.children:
+            child.disabled = True
+        
+        # If no message provided, try to fetch it
+        if not message and self.channel and self.message_id:
+            try:
+                message = await self.channel.fetch_message(self.message_id)
+            except Exception as e:
+                print(f"Error fetching check-in message: {e}")
+                return False
+        
+        # If we have a message, update it
+        if message:
+            try:
+                embed = message.embeds[0]
+                embed.title = "Game Check-in (Closed)"
+                embed.description = reason
+                embed.color = discord.Color.dark_gray()
+                
+                await message.edit(embed=embed, view=self)
+                return True
+            except Exception as e:
+                print(f"Error updating check-in message: {e}")
+                return False
+        
+        return False
 
 
 class DummyMember:

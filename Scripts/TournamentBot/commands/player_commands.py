@@ -87,40 +87,6 @@ def setup_player_commands(bot, MY_GUILD):
         await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @bot.tree.command(
-        name="toxicity",
-        description="Update the toxicity points of a user based on their Discord ID",
-        guild=MY_GUILD
-    )
-    async def update_toxicity_command(interaction: discord.Interaction, discord_id: str):
-        """
-        Updates toxicity points for a player based on their Discord ID.
-        
-        Args:
-            interaction: Discord interaction
-            discord_id: Discord ID of the player to update toxicity for
-        """
-        # Check if user has admin permissions
-        if not helpers.has_admin_permission(interaction.user):
-            await interaction.response.send_message(
-                "You don't have permission to use this command.",
-                ephemeral=True
-            )
-            return
-            
-        success = await databaseManager.update_toxicity_by_id(discord_id)
-        
-        if success:
-            await interaction.response.send_message(
-                f"Toxicity points updated for Discord ID: {discord_id}",
-                ephemeral=True
-            )
-        else:
-            await interaction.response.send_message(
-                f"Failed to update toxicity for Discord ID: {discord_id}. User not found.",
-                ephemeral=True
-            )
-
-    @bot.tree.command(
         name="unlink",
         description="Unlink your Riot ID from your Discord account",
         guild=MY_GUILD

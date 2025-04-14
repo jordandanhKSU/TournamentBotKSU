@@ -52,30 +52,35 @@ class GlobalGameState:
         """
         cls._instance = None
     
-    def __init__(self):
+    def __init__(self, games: list = None, sitting_out: list = None, public_channel=None):
         """Initialize a new GlobalGameState."""
         # Core game data
-        self.games: List[Dict[str, Any]] = []
-        self.sitting_out: List[Any] = []
-        self.public_channel: Optional[discord.TextChannel] = None
-        self.admin_channel: Optional[discord.TextChannel] = None
+        self.games = games if games is not None else []
+        self.sitting_out = sitting_out if sitting_out is not None else []
+        self.public_channel = public_channel
+        self.admin_channel = None
         
         # UI message references
-        self.message_references: Dict[str, discord.Message] = {}
+        self.message_references = {}
+        self.game_messages = {}
+        self.sitting_out_message = None  # Message for sitting out players
+        self.global_controls_message = None  # Store the global controls message
         
         # Game and voting status
-        self.game_results: Dict[int, str] = {}  # Maps game index to "blue" or "red"
-        self.mvp_voting_active: Dict[int, bool] = {}  # Maps game index to voting status
-        self.mvp_votes: Dict[int, Dict[str, str]] = {}  # Maps game index to {voter_id: voted_for_id}
+        self.game_results = {}  # Maps game index to "blue" or "red"
+        self.mvp_voting_active = {}  # Maps game index to voting status
+        self.mvp_votes = {}  # Maps game index to {voter_id: voted_for_id}
+        self.mvp_vote_messages = {}  # {game_index: message}
+        self.mvp_admin_messages = {}  # {game_index: message}
+        self.current_voting_game = None  # Currently active voting game index
         
         # State flags
         self.swap_mode = False
-        self.selected_player1 = None
-        self.selected_player2 = None
-        self.game_indices = []
+        self.finalized = False
+        self.selected = None  # Tuple of (game_index, team, player_index, player_name)
         
         # Auto-end voting timers
-        self.mvp_voting_timers: Dict[int, asyncio.Task] = {}
+        self.mvp_voting_timers = {}
     
     def is_initialized(self) -> bool:
         """Check if the game state has been initialized with games."""
@@ -90,16 +95,29 @@ class GlobalGameState:
             sitting_out: List of players sitting out
             public_channel: Channel to post public updates
         """
-        self.games = []
-        self.sitting_out = sitting_out
+        self.games = games
+        self.sitting_out = sitting_out if sitting_out is not None else []
         self.public_channel = public_channel
+        
+        # Reset message references
         self.message_references = {}
+        self.game_messages = {}
+        self.sitting_out_message = None
+        self.mvp_admin_messages = {}
+        self.mvp_vote_messages = {}
+        self.message_references = {}
+        self.game_messages = {}
+        self.sitting_out_message = None
+        self.global_controls_message = None
         self.game_results = {}
         self.mvp_voting_active = {}
         self.mvp_votes = {}
+        self.mvp_vote_messages = {}
+        self.mvp_admin_messages = {}
         self.swap_mode = False
-        self.selected_player1 = None
-        self.selected_player2 = None
+        self.finalized = False
+        self.selected = None
+        self.current_voting_game = None
         
         # Store the games directly since matchmaking was already done
         self.games = games
@@ -109,15 +127,53 @@ class GlobalGameState:
             self.mvp_voting_active[i] = False
             self.mvp_votes[i] = {}
     
+    def _format_team_data(self, players: list) -> tuple:
+        """
+        Format data for exactly 5 players.
+        
+        Returns a tuple of three newline-delimited strings:
+        - col1: Emoji, bolded primary role and username.
+        - col2: Combined Tier and Rank (with bolded labels) in the format:
+                **Tier**: {tier} | **Rank**: {rank}
+        - col3: Role Preference list with each role preceded by its emoji and the role bolded.
+        """
+        primary_roles = helpers.ROLE_NAMES  # ["Top", "Jun", "Mid", "Bot", "Sup"]
+        col1_lines = []
+        col2_lines = []
+        col3_lines = []
+        
+        for i, player in enumerate(players):
+            primary_role = primary_roles[i]
+            emoji = helpers.ROLE_EMOJIS.get(primary_role, "")
+            col1_lines.append(f"{emoji} **{primary_role}**: {player.username}")
+            
+            # Combined tier and rank column.
+            col2_lines.append(f"**Tier**: {player.tier} | **Rank**: {player.rank}")
+            
+            # Format role preferences with each role's emoji and bold the role.
+            role_prefs = player.get_priority_role_preference()
+            if role_prefs:
+                formatted_prefs = ", ".join(
+                    f"{helpers.ROLE_EMOJIS.get(role, '')} **{role}**" for role in role_prefs
+                )
+            else:
+                formatted_prefs = "None"
+            col3_lines.append(formatted_prefs)
+            
+        return (
+            "\n".join(col1_lines),
+            "\n".join(col2_lines),
+            "\n".join(col3_lines)
+        )
+
     def generate_embed(self, game_index: int) -> discord.Embed:
         """
-        Generate an embed for a specific game.
+        Generate an embed for a specific game that takes up more horizontal space.
         
-        Args:
-            game_index: Index of the game
-            
-        Returns:
-            Discord embed with game information
+        For each team (Blue and Red) there will be 3 inline fields arranged as:
+        1. Field: [Team] Primary Role (with emoji) & Username.
+        2. Field: Combined Tier and Rank.
+        3. Field: Role Preference (each role bolded with its emoji).
         """
         if game_index >= len(self.games):
             return discord.Embed(
@@ -126,209 +182,186 @@ class GlobalGameState:
                 color=discord.Color.red()
             )
         
-        return helpers.create_game_embed(self.games[game_index], game_index)
+        game = self.games[game_index]
+        embed = discord.Embed(title=f"Game {game_index+1}", color=discord.Color.blue())
+        
+        # Blue Team fields
+        blue_col1, blue_col2, blue_col3 = self._format_team_data(game["blue"])
+        embed.add_field(name="Blue Team", value=blue_col1, inline=True)
+        embed.add_field(name="Tier and Rank", value=blue_col2, inline=True)
+        embed.add_field(name="Role Preference", value=blue_col3, inline=True)
+        
+        # Red Team fields
+        red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+        embed.add_field(name="Red Team", value=red_col1, inline=True)
+        embed.add_field(name="Tier and Rank", value=red_col2, inline=True)
+        embed.add_field(name="Role Preference", value=red_col3, inline=True)
+        
+        # If the game has a result, add it to the embed.
+        if game.get("result"):
+            result_text = f"{game['result'].capitalize()} Team Wins!"
+            embed.add_field(name="Result", value=result_text, inline=False)
+        
+        return embed
     
     def generate_sitting_out_embed(self) -> discord.Embed:
-        """
-        Generate an embed for players who are sitting out.
-        
-        Returns:
-            Discord embed with sitting out player information
-        """
-        return helpers.create_sitting_out_embed(self.sitting_out)
+        """Generate an embed for players sitting out."""
+        embed = discord.Embed(title="Sitting Out", color=discord.Color.dark_gray())
+        if self.sitting_out:
+            sitting_out_str = "\n".join(player.username for player in self.sitting_out)
+        else:
+            sitting_out_str = "None"
+        embed.add_field(name="Players Sitting Out", value=sitting_out_str, inline=False)
+        return embed
     
-    async def update_all_messages(self) -> None:
-        """Update all UI messages with current game state."""
-        try:
-            # Update game control messages
-            for i in range(len(self.games)):
-                key = f"game_control_{i}"
-                if key in self.message_references:
-                    message = self.message_references[key]
-                    embed = self.generate_embed(i)
-                    await message.edit(embed=embed)
-            
-            # Update sitting out message
-            if "sitting_out" in self.message_references:
-                message = self.message_references["sitting_out"]
-                embed = self.generate_sitting_out_embed()
-                await message.edit(embed=embed)
-            
-            # Update MVP admin messages
-            for i in range(len(self.games)):
-                key = f"mvp_admin_{i}"
-                if key in self.message_references and self.mvp_voting_active.get(i, False):
-                    await self.update_mvp_admin_embed(i)
+    async def update_all_messages(self):
+        """Update all game embeds and sitting out embed."""
+        # Update game control messages
+        for i in range(len(self.games)):
+            key = f"game_control_{i}"
+            if key in self.message_references:
+                message = self.message_references[key]
+                embed = self.generate_embed(i)
+                
+                # Import here to avoid circular imports
+                from ..ui.game_control import GameControlView
+                view = GameControlView(self, i)
+                
+                try:
+                    await message.edit(embed=embed, view=view)
+                except Exception as e:
+                    print(f"Failed to update message for Game {i+1}: {e}")
         
-        except Exception as e:
-            print(f"Error updating messages: {e}")
+        # Update sitting out message
+        if "sitting_out" in self.message_references:
+            message = self.message_references["sitting_out"]
+            sitting_out_embed = self.generate_sitting_out_embed()
+            try:
+                # Import here to avoid circular imports
+                from ..ui.game_control import SittingOutView
+                
+                # Create a new view for sitting out players if swap mode is enabled and games aren't finalized
+                if self.swap_mode and not self.finalized:
+                    view = SittingOutView(self)
+                    await message.edit(embed=sitting_out_embed, view=view)
+                else:
+                    # Remove buttons when swap mode is off or games are finalized
+                    await message.edit(embed=sitting_out_embed, view=None)
+            except Exception as e:
+                print(f"Failed to update sitting out message: {e}")
+                
+        # Admin tracking functionality removed
     
-    async def start_mvp_voting(self, interaction: discord.Interaction, game_index: int) -> None:
-        """
-        Start MVP voting for a specific game.
-        
-        Args:
-            interaction: Discord interaction
-            game_index: Index of the game
-        """
+    async def start_mvp_voting(self, interaction: discord.Interaction, game_index: int):
+        """Start MVP voting for a specific game."""
+        # Verify game exists and isn't already voting
         if game_index >= len(self.games):
-            await helpers.safe_respond(
-                interaction,
-                content="Invalid game index",
-                ephemeral=True
-            )
-            return
-        
-        game_data = self.games[game_index]
-        if not game_data.get("result"):
-            await helpers.safe_respond(
-                interaction,
-                content="Cannot start MVP voting until a winner is declared",
+            await interaction.response.send_message(
+                f"Invalid game index: {game_index}",
                 ephemeral=True
             )
             return
         
         if self.mvp_voting_active.get(game_index, False):
-            await helpers.safe_respond(
-                interaction,
-                content="MVP voting is already active for this game",
+            await interaction.response.send_message(
+                f"MVP voting for Game {game_index+1} is already active!",
                 ephemeral=True
             )
             return
         
-        # Set up voting state
+        # Mark this game as actively voting
         self.mvp_voting_active[game_index] = True
+        self.current_voting_game = game_index
         self.mvp_votes[game_index] = {}
         
-        # Get the admin channel
-        admin_channel_id = os.getenv("ADMIN_CHANNEL")
-        if admin_channel_id:
-            admin_channel = interaction.guild.get_channel(int(admin_channel_id))
-        else:
-            await helpers.safe_respond(
-                interaction,
-                content="Admin channel not set. Please run the createAdminChannel command first.",
+        # Get game players and winning team
+        game = self.games[game_index]
+        result = self.game_results.get(game_index)
+        
+        if not result:
+            await interaction.response.send_message(
+                f"Error: No result found for Game {game_index+1}. Please declare a winner first.",
                 ephemeral=True
             )
             return
         
-        # Create admin control message
-        embed = discord.Embed(
-            title=f"Game {game_index + 1} - MVP Voting Status",
-            description="Voting in progress. Waiting for player votes...",
-            color=discord.Color.gold()
+        # Get only winning team players for MVP voting
+        winning_players = game[result]  # Either "blue" or "red" team players
+        
+        # Create voting embed for players
+        voting_embed = discord.Embed(
+            title=f"MVP Voting - Game {game_index+1}",
+            description=f"Vote for the Most Valuable Player from the winning {result.capitalize()} team!\nOnly {result.capitalize()} team members can vote, and you cannot vote for yourself.",
+            color=discord.Color.gold() if result == "blue" else discord.Color.red()
         )
         
-        from Scripts.TournamentBot.ui.game_control import GameMVPControlView
-        admin_view = GameMVPControlView(game_index)
-        admin_message = await admin_channel.send(embed=embed, view=admin_view)
-        self.message_references[f"mvp_admin_{game_index}"] = admin_message
+        # Generate player mentions for winning team only
+        player_mentions = " ".join([f"<@{player.discord_id}>" for player in winning_players])
         
-        # Update public message
-        winner_team = game_data["result"]  # "blue" or "red"
-        players = game_data["blue"] + game_data["red"]
-        
-        embed = discord.Embed(
-            title=f"Game {game_index + 1} - MVP Voting",
-            description="Vote for the Most Valuable Player!",
-            color=discord.Color.gold()
-        )
-        
-        embed.add_field(
-            name="How to vote",
-            value="Each player gets one vote. You cannot vote for yourself.",
-            inline=False
-        )
-        
-        # Add fields for each team
-        blue_field = ""
-        for i, player in enumerate(game_data["blue"]):
-            role_name = helpers.ROLE_NAMES[i]
-            emoji = helpers.ROLE_EMOJIS.get(role_name, "")
-            player_name = getattr(player, "username", "Unknown")
-            blue_field += f"{emoji} **{role_name}**: {player_name}\n"
-        
-        red_field = ""
-        for i, player in enumerate(game_data["red"]):
-            role_name = helpers.ROLE_NAMES[i]
-            emoji = helpers.ROLE_EMOJIS.get(role_name, "")
-            player_name = getattr(player, "username", "Unknown")
-            red_field += f"{emoji} **{role_name}**: {player_name}\n"
-        
-        embed.add_field(name="Blue Team", value=blue_field, inline=True)
-        embed.add_field(name="Red Team", value=red_field, inline=True)
-        
-        from Scripts.TournamentBot.ui.game_control import MVPVotingView
-        voting_view = MVPVotingView(self, game_index, players)
-        
-        # Send a new voting message
-        message = await self.public_channel.send(embed=embed, view=voting_view)
-        self.message_references[f"mvp_voting_{game_index}"] = message
-        
-        # Set up auto-end timer (5 minutes)
-        self.mvp_voting_timers[game_index] = asyncio.create_task(
-            self.auto_end_mvp_voting(game_index, admin_channel)
-        )
-        
-        # Notify admin using an embed instead of raw message
-        embed = discord.Embed(
-            title="MVP Voting Started",
-            description=f"MVP voting has been started for Game {game_index + 1}.",
-            color=discord.Color.gold()
-        )
-        
-        # Add some helpful information
-        embed.add_field(
-            name="Duration",
-            value="Voting will automatically end in 5 minutes if not ended manually.",
-            inline=False
-        )
-        
-        await helpers.safe_respond(
-            interaction,
-            embed=embed,
-            ephemeral=True
-        )
-    
-    async def end_mvp_voting(self, interaction: discord.Interaction, game_index: int) -> None:
-        """
-        End MVP voting for a specific game and calculate results.
-        
-        Args:
-            interaction: Discord interaction
-            game_index: Index of the game
-        """
-        if game_index >= len(self.games):
-            await helpers.safe_respond(
-                interaction,
-                content="Invalid game index",
+        # Get the public channel where check-in happened
+        public_channel = self.public_channel
+        if not public_channel:
+            await interaction.response.send_message(
+                "Error: Could not find the public channel for voting. Please restart the game.",
                 ephemeral=True
             )
             return
         
+        # Send voting embed to the public channel
+        try:
+            # Import here to avoid circular imports
+            from ..ui.game_control import MVPVotingView
+            
+            # Create MVP voting view with only winning team players
+            voting_view = MVPVotingView(self, game_index, winning_players, result)
+            voting_msg = await public_channel.send(
+                embed=voting_embed,
+                view=voting_view
+            )
+            # Mention winning team players in a separate message that can be deleted later
+            mention_msg = await public_channel.send(f"🏆 **Game {game_index+1} MVP Voting:** {player_mentions}")
+            self.mvp_vote_messages[game_index] = voting_msg
+        except Exception as e:
+            print(f"Error sending voting message to public channel: {e}")
+            await interaction.response.send_message(
+                f"Error sending voting message: {str(e)}",
+                ephemeral=True
+            )
+            return
+        # Admin tracking functionality removed to simplify MVP voting
+        # Reference removed as part of admin functionality simplification
+        
+        # No confirmation message needed - just defer
+        try:
+            await interaction.response.defer()
+        except (discord.errors.NotFound, discord.errors.InteractionResponded):
+            # Interaction may have timed out or already been responded to
+            pass
+
+    async def end_mvp_voting(self, interaction: discord.Interaction, game_index: int):
+        """End MVP voting and tally results."""
         if not self.mvp_voting_active.get(game_index, False):
-            await helpers.safe_respond(
-                interaction,
-                content="MVP voting is not active for this game",
+            await interaction.response.send_message(
+                f"No active MVP voting for Game {game_index+1}!",
                 ephemeral=True
             )
             return
         
-        # Cancel the auto-end timer if it exists
-        if game_index in self.mvp_voting_timers:
-            self.mvp_voting_timers[game_index].cancel()
-            del self.mvp_voting_timers[game_index]
-        
-        # Mark voting as inactive
-        self.mvp_voting_active[game_index] = False
-        
-        # Get votes
+        # Get the winning team
+        result = self.game_results.get(game_index)
+        if not result:
+            await interaction.response.send_message(
+                f"Error: No result found for Game {game_index+1}.",
+                ephemeral=True
+            )
+            return
+            
+        # Tally votes
         votes = self.mvp_votes.get(game_index, {})
-        
-        # Count votes
         vote_counts = {}
-        for voter_id, voted_for in votes.items():
-            vote_counts[voted_for] = vote_counts.get(voted_for, 0) + 1
+        
+        for voted_id in votes.values():
+            vote_counts[voted_id] = vote_counts.get(voted_id, 0) + 1
         
         # Find player with most votes
         mvp_id = None
@@ -339,466 +372,221 @@ class GlobalGameState:
                 max_votes = count
                 mvp_id = player_id
         
-        # If tie, randomly select from tied players
+        # Handle ties by random selection
         tied_players = [pid for pid, count in vote_counts.items() if count == max_votes]
         if len(tied_players) > 1:
             mvp_id = random.choice(tied_players)
         
-        # Update game data
-        if mvp_id:
-            self.games[game_index]["mvp"] = mvp_id
-            
-            # Find the player object for the MVP
-            mvp_player = None
-            game_data = self.games[game_index]
-            
-            for team in ["blue", "red"]:
-                for player in game_data[team]:
-                    if getattr(player, "discord_id", None) == mvp_id:
-                        mvp_player = player
-                        break
-                if mvp_player:
-                    break
-            
-            # Update database
-            if mvp_player:
-                try:
-                    await databaseManager.add_mvp_point(mvp_id)
-                    
-                    # Store match data in database
-                    result = game_data["result"]
-                    await databaseManager.store_match_data(game_data, result, mvp_id)
-                    
-                    # Update player stats
-                    await databaseManager.update_all_player_stats(game_data, result, mvp_id)
-                except Exception as e:
-                    print(f"Error updating database with MVP: {e}")
+        # Get the game data - only consider winning team players for MVP
+        game = self.games[game_index]
+        winning_players = game[result]
         
-        # Update embeds and UI
-        await self.update_all_messages()
+        # Find the MVP player object
+        mvp_player = None
+        for player in winning_players:
+            if player.discord_id == mvp_id:
+                mvp_player = player
+                break
         
-        # Update MVP voting message
-        key = f"mvp_voting_{game_index}"
-        if key in self.message_references:
-            message = self.message_references[key]
+        # Handle results display
+        if mvp_player and max_votes > 0:
+            # Store match data in database
+            await databaseManager.store_match_data(self.games[game_index], result, mvp_id)
             
-            # Create results embed
-            embed = discord.Embed(
-                title=f"Game {game_index + 1} - MVP Voting Results",
-                color=discord.Color.gold()
+            # Update all player statistics in one call
+            await databaseManager.update_all_player_stats(self.games[game_index], result, mvp_id)
+            
+            # Nothing here - we moved the results_embed creation below
+            
+            # Get winning team color
+            winner_color = discord.Color.blue() if result == "blue" else discord.Color.red()
+            
+            # Add voting breakdown
+            vote_breakdown = ""
+            for player in winning_players:  # Only show winning team players
+                votes = vote_counts.get(player.discord_id, 0)
+                vote_breakdown += f"{player.username}: {votes} vote{'s' if votes != 1 else ''}\n"
+            
+            # Update embed with winning team color
+            results_embed = discord.Embed(
+                title=f"MVP Results - Game {game_index+1}",
+                description=f"🏆 **{mvp_player.username}** has been voted MVP with {max_votes} votes!",
+                color=winner_color
             )
             
-            # Show vote distribution
-            vote_list = []
-            for player_id, count in vote_counts.items():
-                player_name = "Unknown"
-                for team in ["blue", "red"]:
-                    for player in self.games[game_index][team]:
-                        if getattr(player, "discord_id", None) == player_id:
-                            player_name = getattr(player, "username", "Unknown")
-                            break
-                
-                vote_list.append(f"**{player_name}**: {count} vote(s)")
+            results_embed.add_field(
+                name="Voting Breakdown",
+                value=vote_breakdown,
+                inline=False
+            )
             
-            vote_summary = "\n".join(vote_list) if vote_list else "No votes were cast"
-            embed.add_field(name="Vote Distribution", value=vote_summary, inline=False)
-            
-            # Show MVP
-            if mvp_id:
-                mvp_name = "Unknown"
-                for team in ["blue", "red"]:
-                    for player in self.games[game_index][team]:
-                        if getattr(player, "discord_id", None) == mvp_id:
-                            mvp_name = getattr(player, "username", "Unknown")
-                            break
-                
-                embed.add_field(name="MVP", value=f"**{mvp_name}** with {max_votes} vote(s)", inline=False)
-            else:
-                embed.add_field(name="MVP", value="No MVP selected (no votes)", inline=False)
-            
-            # Disable the voting view
-            await message.edit(embed=embed, view=None)
-        
-        # Update admin message
-        await self.update_mvp_admin_embed(game_index)
-        
-        # Notify admin
-        await helpers.safe_respond(
-            interaction,
-            content=f"Ended MVP voting for Game {game_index + 1}",
-            ephemeral=True
-        )
-    
-    async def cancel_mvp_voting(self, interaction: discord.Interaction, game_index: int, silent: bool = False) -> None:
-        """
-        Cancel MVP voting for a specific game without determining a winner.
-        
-        Args:
-            interaction: Discord interaction
-            game_index: Index of the game
-            silent: Whether to suppress user notifications
-        """
-        if game_index >= len(self.games):
-            if not silent:
-                await helpers.safe_respond(
-                    interaction,
-                    content="Invalid game index",
-                    ephemeral=True
+            # Update the voting message
+            voting_msg = self.mvp_vote_messages.get(game_index)
+            if voting_msg:
+                await voting_msg.edit(
+                    embed=results_embed,
+                    view=None
                 )
-            return
+            
+            # Admin message update functionality removed
+            
+            # No confirmation message needed - just defer
+            try:
+                await interaction.response.defer()
+            except (discord.errors.NotFound, discord.errors.InteractionResponded):
+                # Interaction may have timed out or already been responded to
+                pass
+        else:
+            # No votes or tie case
+            no_votes_embed = discord.Embed(
+                title=f"MVP Voting Ended - Game {game_index+1}",
+                description="No MVP was selected as there were no votes or there was a tie.",
+                color=discord.Color.dark_gray()
+            )
+            
+            voting_msg = self.mvp_vote_messages.get(game_index)
+            if voting_msg:
+                await voting_msg.edit(
+                    embed=no_votes_embed,
+                    view=None
+                )
+            
+            # No confirmation message needed - just defer
+            try:
+                await interaction.response.defer()
+            except (discord.errors.NotFound, discord.errors.InteractionResponded):
+                # Interaction may have timed out or already been responded to
+                pass
         
+        # Clean up voting state
+        self.mvp_voting_active[game_index] = False
+        self.current_voting_game = None
+
+    async def cancel_mvp_voting(self, interaction: discord.Interaction, game_index: int, silent=False):
+        """Cancel MVP voting without tallying results."""
         if not self.mvp_voting_active.get(game_index, False):
             if not silent:
-                await helpers.safe_respond(
-                    interaction,
-                    content="MVP voting is not active for this game",
+                await interaction.response.send_message(
+                    f"No active MVP voting for Game {game_index+1}!",
                     ephemeral=True
                 )
             return
         
-        # Cancel the auto-end timer if it exists
-        if game_index in self.mvp_voting_timers:
-            self.mvp_voting_timers[game_index].cancel()
-            del self.mvp_voting_timers[game_index]
-        
-        # Mark voting as inactive
-        self.mvp_voting_active[game_index] = False
-        
-        # Clear votes
-        self.mvp_votes[game_index] = {}
-        
-        # Update MVP voting message
-        key = f"mvp_voting_{game_index}"
-        if key in self.message_references:
-            message = self.message_references[key]
+        # Get the game result and update the database
+        result = self.game_results.get(game_index, None)
+        if result:
+            # Since MVP voting was canceled, we treat it like skipping MVP
+            # Store match data in database with NULL MVP
+            await databaseManager.store_match_data(self.games[game_index], result, None)
             
-            # Create cancellation embed
-            embed = discord.Embed(
-                title=f"Game {game_index + 1} - MVP Voting Cancelled",
-                description="MVP voting has been cancelled by an administrator.",
-                color=discord.Color.red()
-            )
-            
-            # Disable the voting view
-            await message.edit(embed=embed, view=None)
-        
-        # Mark the MVP as None (NULL) and update the database
-        game_data = self.games[game_index]
-        game_data["mvp"] = None
-        
-        # Store match data in database without MVP
-        try:
-            result = game_data.get("result")
-            if result:
-                await databaseManager.store_match_data(game_data, result)
-                await databaseManager.update_all_player_stats(game_data, result)
-                
-                if not silent:
-                    await helpers.safe_respond(
-                        interaction,
-                        content=f"Cancelled MVP voting for Game {game_index + 1}. Results recorded without MVP.",
-                        ephemeral=True
-                    )
-            else:
-                if not silent:
-                    await helpers.safe_respond(
-                        interaction,
-                        content=f"Cancelled MVP voting for Game {game_index + 1}.",
-                        ephemeral=True
-                    )
-        except Exception as e:
-            print(f"Error recording results after cancelling MVP vote: {e}")
-            if not silent:
-                await helpers.safe_respond(
-                    interaction,
-                    content=f"Cancelled MVP voting but encountered an error recording results: {str(e)}",
-                    ephemeral=True
-                )
-        
-        # Update admin message
-        await self.update_mvp_admin_embed(game_index)
-    
-    async def update_mvp_admin_embed(self, game_index: int) -> None:
-        """
-        Update the MVP admin control embed.
-        
-        Args:
-            game_index: Index of the game
-        """
-        key = f"mvp_admin_{game_index}"
-        if key not in self.message_references:
-            return
-        
-        message = self.message_references[key]
-        
-        # Get game data
-        game_data = self.games[game_index]
-        votes = self.mvp_votes.get(game_index, {})
-        
-        # Create embed based on voting status
-        if self.mvp_voting_active.get(game_index, False):
-            embed = discord.Embed(
-                title=f"Game {game_index + 1} - MVP Voting Status",
-                description="Voting in progress",
-                color=discord.Color.gold()
-            )
-            
-            # Show current vote count
-            voted_players = set(votes.values())
-            total_players = len(game_data["blue"]) + len(game_data["red"])
-            embed.add_field(
-                name="Vote Count",
-                value=f"{len(votes)}/{total_players} players have voted",
-                inline=False
-            )
-            
-            # Show who has voted
-            voted_ids = list(votes.keys())
-            voted_names = []
-            
-            for team in ["blue", "red"]:
-                for player in game_data[team]:
-                    player_id = getattr(player, "discord_id", None)
-                    player_name = getattr(player, "username", "Unknown")
-                    
-                    if player_id in voted_ids:
-                        voted_names.append(f"✅ {player_name}")
-                    else:
-                        voted_names.append(f"❌ {player_name}")
-            
-            embed.add_field(
-                name="Player Voting Status",
-                value="\n".join(voted_names) or "No players",
-                inline=False
-            )
-            
-            # If everyone voted, add button to end voting
-            if len(votes) == total_players:
-                embed.add_field(
-                    name="All votes in!",
-                    value="All players have voted. You can end the voting now.",
-                    inline=False
-                )
+            # Update all player statistics
+            await databaseManager.update_all_player_stats(self.games[game_index], result, None)
         else:
-            # Voting is not active
-            mvp_id = game_data.get("mvp", None)
-            
-            if mvp_id:
-                embed = discord.Embed(
-                    title=f"Game {game_index + 1} - MVP Voting Complete",
-                    description="Voting has ended",
-                    color=discord.Color.green()
-                )
-                
-                # Find MVP name
-                mvp_name = "Unknown"
-                for team in ["blue", "red"]:
-                    for player in game_data[team]:
-                        if getattr(player, "discord_id", None) == mvp_id:
-                            mvp_name = getattr(player, "username", "Unknown")
-                            break
-                
-                embed.add_field(name="MVP", value=mvp_name, inline=False)
-            else:
-                embed = discord.Embed(
-                    title=f"Game {game_index + 1} - MVP Voting Cancelled",
-                    description="Voting was cancelled or no MVP was selected",
-                    color=discord.Color.red()
-                )
+            print(f"Error: No game result found for game {game_index}")
         
-        # Update the message
-        from Scripts.TournamentBot.ui.game_control import GameMVPControlView
-        admin_view = GameMVPControlView(game_index, self.mvp_voting_active.get(game_index, False))
-        await message.edit(embed=embed, view=admin_view)
+        # Create cancellation embed
+        cancel_embed = discord.Embed(
+            title=f"MVP Voting Cancelled - Game {game_index+1}",
+            description="The administrator has cancelled MVP voting for this game.",
+            color=discord.Color.dark_gray()
+        )
+        
+        # Update the voting message
+        voting_msg = self.mvp_vote_messages.get(game_index)
+        if voting_msg:
+            await voting_msg.edit(
+                embed=cancel_embed,
+                view=None
+            )
+        
+        # Admin message update functionality removed
+        
+        # Clean up voting state
+        self.mvp_voting_active[game_index] = False
+        self.current_voting_game = None
+        
+        if not silent:
+            # No confirmation message needed - just defer
+            try:
+                await interaction.response.defer()
+            except (discord.errors.NotFound, discord.errors.InteractionResponded):
+                # Interaction may have timed out or already been responded to
+                pass
+
+    # Method removed as part of simplifying MVP voting functionality
     
-    async def auto_end_mvp_voting(self, game_index: int, admin_channel: discord.TextChannel) -> None:
-        """
-        Automatically end MVP voting after a timeout period.
-        
-        Args:
-            game_index: Index of the game
-            admin_channel: Admin channel for notifications
-        """
-        # Wait for 5 minutes
+    async def auto_end_mvp_voting(self, game_index, admin_channel):
+        """Automatically end MVP voting when everyone has voted."""
         try:
-            await asyncio.sleep(300)  # 5 minutes
+            # Wait a brief moment to allow for any race conditions
+            await asyncio.sleep(1)
             
-            # Check if voting is still active
-            if self.mvp_voting_active.get(game_index, False):
-                # Create a fake interaction for end_mvp_voting
-                class FakeInteraction:
-                    def __init__(self):
-                        self.response = FakeResponse()
-                    
-                    async def followup(self):
-                        return None
+            # Create a simplified fake interaction for the end_mvp_voting method
+            class FakeInteraction:
+                def __init__(self, channel):
+                    self.channel = channel
+                    self.client = channel.guild.me._state._get_client()
                 
-                class FakeResponse:
-                    def __init__(self):
-                        pass
-                    
-                    def is_done(self):
-                        return True
-                    
-                    async def send_message(self, *args, **kwargs):
-                        pass
-                
-                fake_interaction = FakeInteraction()
-                
-                # End the voting
-                await self.end_mvp_voting(fake_interaction, game_index)
-                
-                # Notify admin channel
-                await admin_channel.send(
-                    f"⏰ MVP voting for Game {game_index + 1} has ended automatically due to timeout."
-                )
-        except asyncio.CancelledError:
-            # Task was cancelled, no need to do anything
-            pass
+                async def response_send_message(self, content, ephemeral=False):
+                    pass  # No messages needed
+            
+            fake_interaction = FakeInteraction(self.public_channel)
+            fake_interaction.response = fake_interaction
+            
+            # End the voting
+            await self.end_mvp_voting(fake_interaction, game_index)
+            
         except Exception as e:
             print(f"Error in auto_end_mvp_voting: {e}")
-    
-    async def handle_selection(
-        self, interaction: discord.Interaction, game_index: int, team: str, player_index: int, player_name: str
-    ) -> None:
-        """
-        Handle player selection for team swapping.
-        
-        Args:
-            interaction: Discord interaction
-            game_index: Index of the game
-            team: Team name ("blue" or "red")
-            player_index: Index of the player in the team
-            player_name: Name of the player (for display)
-        """
-        if not self.swap_mode:
-            await helpers.safe_respond(
-                interaction,
-                content="Player swapping is not active. Use the Swap button to enable swapping mode.",
-                ephemeral=True
+
+    async def handle_selection(self, interaction: discord.Interaction, game_index: int, team: str, player_index: int, player_name: str):
+        """Handle player selection for swapping."""
+        if self.selected is None:
+            self.selected = (game_index, team, player_index, player_name)
+            await interaction.response.send_message(
+                f"Selected **{player_name}** from " +
+                (f"Game {game_index+1} ({team.capitalize()} Team)." if team != "sitting_out" else "Sitting Out.") +
+                " Now select another player to swap.",
+                ephemeral=True,
             )
-            return
-        
-        if game_index >= len(self.games):
-            await helpers.safe_respond(
-                interaction,
-                content="Invalid game index",
-                ephemeral=True
-            )
-            return
-        
-        # Handle player selection
-        if self.selected_player1 is None:
-            # Store first selected player
-            self.selected_player1 = (game_index, team, player_index)
-            
-            # Create an embed to show what player is selected
-            embed = discord.Embed(
-                title="Player Selected",
-                description=f"**{player_name}** from **{team.capitalize()} Team** has been selected.",
-                color=discord.Color.blue() if team == "blue" else discord.Color.red()
-            )
-            embed.add_field(
-                name="Next Step",
-                value="Now select another player to swap with.",
-                inline=False
-            )
-            
-            await helpers.safe_respond(
-                interaction,
-                embed=embed,
-                ephemeral=True
-            )
-            
-            # Update the UI to show the selected player
-            await self.update_all_messages()
-            
         else:
-            # Store second selected player
-            self.selected_player2 = (game_index, team, player_index)
-            
-            # Get player objects
-            game1, team1, idx1 = self.selected_player1
-            game2, team2, idx2 = self.selected_player2
-            
-            # Get player names for confirmation
-            player1 = self.games[game1][team1][idx1]
-            player2 = self.games[game2][team2][idx2]
-            player1_name = getattr(player1, "username", "Unknown")
-            player2_name = getattr(player2, "username", "Unknown")
-            
-            # Check if both players have the same role index
-            role_index1 = getattr(player1, "assigned_role", None)
-            role_index2 = getattr(player2, "assigned_role", None)
-            
-            # Create an embed for the swap result
-            embed = discord.Embed(
-                title="Players Swapped",
-                color=discord.Color.green()
-            )
-            
-            if role_index1 != role_index2 and role_index1 is not None and role_index2 is not None:
-                # Show warning about role mismatch
-                embed.description = f"⚠️ **Swapped players with different roles!**"
-                embed.add_field(
-                    name="Player 1",
-                    value=f"{player1_name} - {helpers.ROLE_NAMES[role_index1]}",
-                    inline=True
-                )
-                embed.add_field(
-                    name="Player 2",
-                    value=f"{player2_name} - {helpers.ROLE_NAMES[role_index2]}",
-                    inline=True
-                )
+            first_game_index, first_team, first_player_index, first_player_name = self.selected
+            if first_team == team and first_game_index == game_index:
+                if team == "sitting_out":
+                    temp = self.sitting_out[first_player_index]
+                    self.sitting_out[first_player_index] = self.sitting_out[player_index]
+                    self.sitting_out[player_index] = temp
+                else:
+                    temp = self.games[first_game_index][first_team][first_player_index]
+                    self.games[first_game_index][first_team][first_player_index] = self.games[game_index][team][player_index]
+                    self.games[game_index][team][player_index] = temp
             else:
-                embed.description = f"Successfully swapped players!"
-                embed.add_field(name="Player 1", value=player1_name, inline=True)
-                embed.add_field(name="Player 2", value=player2_name, inline=True)
-            
-            # Perform swap
-            self.games[game1][team1][idx1], self.games[game2][team2][idx2] = \
-                self.games[game2][team2][idx2], self.games[game1][team1][idx1]
-            
-            # Reset selection
-            self.selected_player1 = None
-            self.selected_player2 = None
-            
-            # Update all messages
+                if first_team == "sitting_out":
+                    temp = self.sitting_out[first_player_index]
+                    self.sitting_out[first_player_index] = self.games[game_index][team][player_index]
+                    self.games[game_index][team][player_index] = temp
+                elif team == "sitting_out":
+                    temp = self.games[first_game_index][first_team][first_player_index]
+                    self.games[first_game_index][first_team][first_player_index] = self.sitting_out[player_index]
+                    self.sitting_out[player_index] = temp
+                else:
+                    temp = self.games[first_game_index][first_team][first_player_index]
+                    self.games[first_game_index][first_team][first_player_index] = self.games[game_index][team][player_index]
+                    self.games[game_index][team][player_index] = temp
+
+            self.selected = None
             await self.update_all_messages()
-            
-            await helpers.safe_respond(
-                interaction,
-                embed=embed,
-                ephemeral=True
-            )
-    
-    async def toggle_swap_mode(self, interaction: discord.Interaction) -> None:
-        """
-        Toggle player swapping mode.
-        
-        Args:
-            interaction: Discord interaction
-        """
+            try:
+                await interaction.response.send_message("Players swapped!", ephemeral=True)
+            except (discord.errors.NotFound, discord.errors.InteractionResponded):
+                # Interaction may have timed out or already been responded to
+                pass
+
+    async def toggle_swap_mode(self, interaction: discord.Interaction):
+        """Toggle swap mode for player manipulation."""
         self.swap_mode = not self.swap_mode
-        self.selected_player1 = None
-        self.selected_player2 = None
-        
-        # Create an embed response instead of raw message
-        embed = discord.Embed(
-            title="Swap Mode",
-            description=f"Player swapping mode is now **{'enabled' if self.swap_mode else 'disabled'}**",
-            color=discord.Color.green() if self.swap_mode else discord.Color.red()
-        )
-        
-        if self.swap_mode:
-            embed.add_field(
-                name="Instructions",
-                value="Click on player buttons to select them for swapping. Select one player from each team to swap positions.",
-                inline=False
-            )
-        
-        await helpers.safe_respond(
-            interaction,
-            embed=embed,
-            ephemeral=True
-        )
+        if not self.swap_mode:
+            self.selected = None
+        await self.update_all_messages()
+        mode_str = "enabled (names revealed)" if self.swap_mode else "disabled (names hidden)"
+        await interaction.response.send_message(f"Swap mode {mode_str}.", ephemeral=True)

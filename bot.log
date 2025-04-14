@@ -1,95 +1,628 @@
-2025-04-07 04:23:02,414 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 04:23:02,415 - TournamentBot - INFO - Starting bot...
-2025-04-07 04:23:02,416 - discord.client - INFO - logging in using static token
-2025-04-07 04:23:02,853 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2c4de70a6bf40dc3112729e9f0cd9877).
-2025-04-07 04:23:04,999 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 04:23:05,229 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 04:28:10,920 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 04:28:10,921 - TournamentBot - INFO - Starting bot...
-2025-04-07 04:28:10,923 - discord.client - INFO - logging in using static token
-2025-04-07 04:28:11,326 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 2c0a5cff8bcdb3126e61f925df3bf97c).
-2025-04-07 04:28:13,363 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 04:28:13,514 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 04:34:34,419 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 04:34:34,420 - TournamentBot - INFO - Starting bot...
-2025-04-07 04:34:34,421 - discord.client - INFO - logging in using static token
-2025-04-07 04:34:34,931 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: c1bbb12528ac2b3564884688eeed73f5).
-2025-04-07 04:34:36,961 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 04:34:37,128 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 04:36:06,167 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 04:36:06,168 - TournamentBot - INFO - Starting bot...
-2025-04-07 04:36:06,168 - discord.client - INFO - logging in using static token
-2025-04-07 04:36:07,246 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5cdb54b7c313e08232a8a8b90c0626b9).
-2025-04-07 04:36:09,255 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 04:36:09,513 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 04:39:01,815 - discord.ui.view - ERROR - Ignoring exception in view <StartGameView timeout=None children=5> for item <Button style=<ButtonStyle.success: 3> url=None disabled=True label='Start\nGame' emoji=None row=1 sku_id=None>
+2025-04-14 01:53:40,362 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 01:53:40,364 - TournamentBot - INFO - Starting bot...
+2025-04-14 01:53:40,365 - discord.client - INFO - logging in using static token
+2025-04-14 01:53:40,822 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 1e098d837ea57b40ad90b22cd04f38c7).
+2025-04-14 01:53:42,839 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 01:53:43,210 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 01:57:33,603 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 01:57:33,605 - TournamentBot - INFO - Starting bot...
+2025-04-14 01:57:33,607 - discord.client - INFO - logging in using static token
+2025-04-14 01:57:34,163 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 7cc9f13e9a92ff68fa41582d9a2e8532).
+2025-04-14 01:57:36,186 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 01:57:36,367 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:32:25,042 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:32:25,043 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:32:25,044 - discord.client - INFO - logging in using static token
+2025-04-14 02:32:25,658 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d29f43b998ce500328d7a1bfc9da6534).
+2025-04-14 02:32:27,676 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:32:27,902 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:32:36,846 - discord.app_commands.tree - ERROR - Ignoring exception in command 'checkin'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 93, in checkin
+    # Check if there is an existing check-in active
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+            ),
+    
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'checkin' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 02:32:41,607 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 194, in force_check_in
+    # Check if there is an existing check-in active
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+            ),
+    
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 02:32:47,570 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 206, in force_check_in
+    await interaction.response.defer(ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 02:33:15,914 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:33:15,915 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:33:15,916 - discord.client - INFO - logging in using static token
+2025-04-14 02:33:16,438 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5bf3dd015ac771efdfe2a2a9339d5067).
+2025-04-14 02:33:18,461 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:33:18,661 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:33:28,225 - discord.ui.view - ERROR - Ignoring exception in view <StartGameView timeout=None children=5> for item <Button style=<ButtonStyle.success: 3> url=None disabled=True label='Start\nGame' emoji=None row=1 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\check_in.py", line 222, in start_game_button
-    await game_state.initialize_games(games, cut_players, interaction.channel)
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 105, in initialize_games
-    blue_teams, red_teams = Matchmaking.matchmaking_multiple(players)
-                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\Matchmaking.py", line 208, in matchmaking_multiple
-    sorted_players = sorted(players, key=lambda p: p.tier)
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\Matchmaking.py", line 208, in <lambda>
-    sorted_players = sorted(players, key=lambda p: p.tier)
-                                                   ^^^^^^
-AttributeError: 'dict' object has no attribute 'tier'
-2025-04-07 04:50:54,949 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 04:50:54,950 - TournamentBot - INFO - Starting bot...
-2025-04-07 04:50:54,951 - discord.client - INFO - logging in using static token
-2025-04-07 04:50:55,484 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 18ade0cb4dbb2719fa970e7373d4518b).
-2025-04-07 04:50:57,517 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 04:50:57,671 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 04:54:20,633 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\check_in.py", line 255, in start_game_button
+    embed = game_state.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 167, in generate_embed
+    blue_col1, blue_col2, blue_col3 = self._format_team_data(game["blue"])
+                                      ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 142, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\Matchmaking.py", line 49, in __getattr__
+    return getattr(self.player, attr)
+AttributeError: 'Player' object has no attribute 'get_priority_role_preference'
+2025-04-14 02:44:12,144 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:44:12,145 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:44:12,146 - discord.client - INFO - logging in using static token
+2025-04-14 02:44:12,962 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6836e3b9051784c50cf689f84bede2c7).
+2025-04-14 02:44:14,972 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:44:15,144 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:44:22,500 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
 Traceback (most recent call last):
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
-    await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 04:55:00,536 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 206, in force_check_in
+    await interaction.response.defer(ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
 Traceback (most recent call last):
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
-    await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 04:55:18,715 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
-Traceback (most recent call last):
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
-    await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "c:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 13:23:40,439 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 13:23:40,440 - TournamentBot - INFO - Starting bot...
-2025-04-07 13:23:40,441 - discord.client - INFO - logging in using static token
-2025-04-07 13:23:40,990 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 79d77061dd4812dc5759df4f922fb34b).
-2025-04-07 13:23:43,010 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 13:23:43,234 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 13:26:02,236 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 02:44:35,178 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:44:35,179 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:44:35,179 - discord.client - INFO - logging in using static token
+2025-04-14 02:44:35,577 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 635a40af8cf5697f4398357b54474b33).
+2025-04-14 02:44:37,593 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:44:42,503 - discord.ui.view - ERROR - Ignoring exception in view <StartGameView timeout=None children=5> for item <Button style=<ButtonStyle.success: 3> url=None disabled=True label='Start\nGame' emoji=None row=1 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 13:26:15,929 - discord.ui.view - ERROR - Ignoring exception in view <GlobalSwapControlView timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=True label='Finalize Games' emoji=None row=0 sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\check_in.py", line 274, in start_game_button
+    global_view = GlobalControlView(game_state)
+TypeError: GlobalControlView.__init__() takes 1 positional argument but 2 were given
+2025-04-14 02:45:15,184 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:47:36,508 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:47:36,509 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:47:36,510 - discord.client - INFO - logging in using static token
+2025-04-14 02:47:37,141 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a3d5a0d11a2667c00a21ab1d06072cf4).
+2025-04-14 02:47:39,149 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:47:39,372 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:47:45,571 - discord.ui.view - ERROR - Ignoring exception in view <StartGameView timeout=None children=5> for item <Button style=<ButtonStyle.success: 3> url=None disabled=True label='Start\nGame' emoji=None row=1 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 1038, in finalize_button
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\check_in.py", line 282, in start_game_button
+    swap_view = GlobalSwapControlView(game_state)
+TypeError: GlobalSwapControlView.__init__() takes 1 positional argument but 2 were given
+2025-04-14 02:50:17,397 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:50:17,398 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:50:17,399 - discord.client - INFO - logging in using static token
+2025-04-14 02:50:18,003 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: dacd81463a3c333f335c4c2be7e09729).
+2025-04-14 02:50:20,014 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:50:20,353 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:50:28,469 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 196, in force_check_in
+    await interaction.response.send_message(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 02:51:25,991 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:51:25,992 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:51:25,993 - discord.client - INFO - logging in using static token
+2025-04-14 02:51:26,567 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: bd87ee2192810ab9397bb00a7b8a9f8b).
+2025-04-14 02:51:28,588 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:51:28,886 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 02:52:51,454 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 02:52:51,455 - TournamentBot - INFO - Starting bot...
+2025-04-14 02:52:51,456 - discord.client - INFO - logging in using static token
+2025-04-14 02:52:52,256 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: bc7d684347fd3aeb9a3b8098ec37e15e).
+2025-04-14 02:52:54,309 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 02:52:54,504 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 03:04:44,566 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 03:04:44,568 - TournamentBot - INFO - Starting bot...
+2025-04-14 03:04:44,568 - discord.client - INFO - logging in using static token
+2025-04-14 03:04:45,042 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e4669a178f56b076601fc631842efe60).
+2025-04-14 03:04:47,070 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 03:04:47,309 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 03:07:24,985 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 03:07:24,986 - TournamentBot - INFO - Starting bot...
+2025-04-14 03:07:24,987 - discord.client - INFO - logging in using static token
+2025-04-14 03:07:25,371 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5c0400d91b0e028b40a275794b12b6cf).
+2025-04-14 03:07:27,393 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 03:07:27,620 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 03:34:47,644 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 03:34:47,646 - TournamentBot - INFO - Starting bot...
+2025-04-14 03:34:47,646 - discord.client - INFO - logging in using static token
+2025-04-14 03:34:48,143 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6be4f6f500b3395f608e0a3213fe1542).
+2025-04-14 03:34:50,165 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 03:34:50,369 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 03:35:26,283 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=2> for item <RedWinButton style=<ButtonStyle.danger: 4> url=None disabled=False label='Red Team Win' emoji=None row=2 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 311, in callback
+    game_state.games[self.game_index]["result"] = "red"
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+IndexError: list index out of range
+2025-04-14 03:35:27,108 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=2> for item <BlueWinButton style=<ButtonStyle.primary: 1> url=None disabled=False label='Blue Team Win' emoji=None row=2 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 263, in callback
+    game_state.games[self.game_index]["result"] = "blue"
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+IndexError: list index out of range
+2025-04-14 03:35:39,262 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=2> for item <RedWinButton style=<ButtonStyle.danger: 4> url=None disabled=False label='Red Team Win' emoji=None row=2 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 311, in callback
+    game_state.games[self.game_index]["result"] = "red"
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+IndexError: list index out of range
+2025-04-14 03:35:40,108 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=2> for item <BlueWinButton style=<ButtonStyle.primary: 1> url=None disabled=False label='Blue Team Win' emoji=None row=2 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 263, in callback
+    game_state.games[self.game_index]["result"] = "blue"
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+IndexError: list index out of range
+2025-04-14 03:40:02,685 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 03:40:02,686 - TournamentBot - INFO - Starting bot...
+2025-04-14 03:40:02,687 - discord.client - INFO - logging in using static token
+2025-04-14 03:40:03,211 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5aad377b12ab0ccac1680ff66e298041).
+2025-04-14 03:40:05,236 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 03:40:05,447 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:00:25,713 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:00:25,715 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:00:25,715 - discord.client - INFO - logging in using static token
+2025-04-14 04:00:26,229 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b95b202654a0fb9200fff02fc474c705).
+2025-04-14 04:00:28,236 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:00:28,416 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:05:40,242 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 780, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 716, in toggle_swap_mode
+    await interaction.response.send_message(f"Swap mode {mode_str}.", ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 04:05:46,483 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 780, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 716, in toggle_swap_mode
+    await interaction.response.send_message(f"Swap mode {mode_str}.", ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 04:05:56,243 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 780, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 716, in toggle_swap_mode
+    await interaction.response.send_message(f"Swap mode {mode_str}.", ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 04:17:24,927 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=2> for item <MVPVoteButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Vote for MVP' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 228, in callback
+    await game_state.start_mvp_voting(interaction, self.game_index)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 328, in start_mvp_voting
+    for player in all_players:
+                  ^^^^^^^^^^^
+NameError: name 'all_players' is not defined
+2025-04-14 04:17:50,635 - discord.ui.view - ERROR - Ignoring exception in view <MVPVotingView timeout=None children=5> for item <PlayerMVPButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P12_GOL_J' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 416, in callback
+    game = game_state.games[self.game_index]
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+IndexError: list index out of range
+2025-04-14 04:21:59,401 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:21:59,402 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:21:59,403 - discord.client - INFO - logging in using static token
+2025-04-14 04:21:59,869 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 0228827b5aaa2618a3f5e894506a9b7b).
+2025-04-14 04:22:01,886 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:22:02,056 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:35:12,757 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:35:12,758 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:35:12,759 - discord.client - INFO - logging in using static token
+2025-04-14 04:35:13,270 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 52adf2e47ab95708b0f8c59207e892a5).
+2025-04-14 04:35:15,279 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:35:15,457 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:35:22,982 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 261, in force_check_in
+    from ..ui.game_control import GlobalPhasedControlView
+ImportError: cannot import name 'GlobalPhasedControlView' from 'Scripts.TournamentBot.ui.game_control' (C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: ImportError: cannot import name 'GlobalPhasedControlView' from 'Scripts.TournamentBot.ui.game_control' (C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py)
+2025-04-14 04:36:40,758 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:36:40,760 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:36:40,760 - discord.client - INFO - logging in using static token
+2025-04-14 04:36:41,407 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 50009253f6c7ee389e1aac6fc7f9c474).
+2025-04-14 04:36:43,428 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:36:43,668 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:41:16,781 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:41:16,782 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:41:16,783 - discord.client - INFO - logging in using static token
+2025-04-14 04:41:17,210 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 009220c1abe37afef82c103c136da9eb).
+2025-04-14 04:41:19,244 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:41:19,438 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:47:25,384 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:47:25,385 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:47:25,386 - discord.client - INFO - logging in using static token
+2025-04-14 04:47:25,790 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6efaa9602e9f18c08771a8cf64f63ca2).
+2025-04-14 04:47:27,804 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:47:28,021 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:49:12,966 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:49:12,967 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:49:12,968 - discord.client - INFO - logging in using static token
+2025-04-14 04:49:13,588 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 8dc5e2f23d26875fc1cb267e6f4fb6e0).
+2025-04-14 04:49:15,602 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:49:15,813 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:49:53,013 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase3View timeout=None children=2> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='Next Game' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 1041, in next_game_callback
+    user_list.append(f"{i+1}. {getattr(user, 'mention', user.username)}")
+                                                        ^^^^^^^^^^^^^
+AttributeError: 'User' object has no attribute 'username'
+2025-04-14 04:51:05,901 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:51:05,902 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:51:05,903 - discord.client - INFO - logging in using static token
+2025-04-14 04:51:06,439 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b8ebfe9b6cfeffc5ca5fffc96626f649).
+2025-04-14 04:51:08,459 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:51:08,741 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 04:54:33,313 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 04:54:33,314 - TournamentBot - INFO - Starting bot...
+2025-04-14 04:54:33,315 - discord.client - INFO - logging in using static token
+2025-04-14 04:54:33,734 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 038f7c43970246ce67b5fb34dd8648c3).
+2025-04-14 04:54:35,776 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 04:54:35,956 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:15:45,953 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:15:45,954 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:15:45,955 - discord.client - INFO - logging in using static token
+2025-04-14 05:15:46,494 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: de650778fcffabc24f33db62d55c5d46).
+2025-04-14 05:15:48,510 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:15:48,672 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:20:04,756 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:20:04,757 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:20:04,757 - discord.client - INFO - logging in using static token
+2025-04-14 05:20:05,157 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 3c10ca6ff9f1932f3d4e1e744ca4a802).
+2025-04-14 05:20:07,167 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:20:07,393 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:22:11,542 - discord.gateway - INFO - Shard ID None has successfully RESUMED session 3c10ca6ff9f1932f3d4e1e744ca4a802.
+2025-04-14 05:22:23,871 - discord.gateway - INFO - Shard ID None has successfully RESUMED session 3c10ca6ff9f1932f3d4e1e744ca4a802.
+2025-04-14 05:32:08,823 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:32:08,824 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:32:08,825 - discord.client - INFO - logging in using static token
+2025-04-14 05:32:09,387 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 0a45512bbc6cdfd2aac33227a2e18af4).
+2025-04-14 05:32:11,432 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:32:11,728 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:33:11,041 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P4_BRO_B' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'get_priority_role_preference'
+2025-04-14 05:33:21,548 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P4_BRO_B' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'get_priority_role_preference'
+2025-04-14 05:33:28,755 - discord.ui.view - ERROR - Ignoring exception in view <SittingOutView timeout=None children=1> for item <SittingOutButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Baka' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 46, in callback
+    await global_game_state.handle_selection(interaction, None, "sitting_out", self.player_index, self.label)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'get_priority_role_preference'
+2025-04-14 05:33:34,511 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P7_SIL_J' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'get_priority_role_preference'
+2025-04-14 05:35:31,543 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:35:31,544 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:35:31,545 - discord.client - INFO - logging in using static token
+2025-04-14 05:35:31,986 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f8597db3015a3f99159fa663195ffad4).
+2025-04-14 05:35:34,002 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:35:34,233 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:42:54,116 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:42:54,117 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:42:54,118 - discord.client - INFO - logging in using static token
+2025-04-14 05:42:54,937 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 0f36ac0e1144291cf534ba65280cc59c).
+2025-04-14 05:42:56,949 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:42:57,115 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:43:28,602 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P5_BRO_S' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:43:45,282 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Finalize Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 803, in finalize_button
+    await self.global_state.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:43:50,386 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Finalize Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 803, in finalize_button
+    await self.global_state.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:43:54,905 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 777, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 714, in toggle_swap_mode
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:44:08,157 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:44:08,158 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:44:08,159 - discord.client - INFO - logging in using static token
+2025-04-14 05:44:08,733 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 8b41f3dd11c5975f45a1c248e675c2e6).
+2025-04-14 05:44:10,752 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:44:10,944 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:44:31,485 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase3View timeout=None children=2> for item <Button style=<ButtonStyle.danger: 4> url=None disabled=False label='Cancel Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 1207, in cancel_games_callback
     await interaction.response.send_message(
     ...<2 lines>...
     )
@@ -100,43 +633,411 @@ Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
     raise NotFound(response, data)
 discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
-2025-04-07 13:26:26,177 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+2025-04-14 05:52:13,708 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:52:13,710 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:52:13,710 - discord.client - INFO - logging in using static token
+2025-04-14 05:52:14,144 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ddb4d73d5c41f03d88e1ade4a257a0e5).
+2025-04-14 05:52:16,154 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:52:16,355 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:52:43,606 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P17_EME_J' emoji=None row=1 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 13:42:22,445 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
-2025-04-07 13:42:22,447 - TournamentBot - INFO - Starting bot...
-2025-04-07 13:42:22,447 - discord.client - INFO - logging in using static token
-2025-04-07 13:42:22,989 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b7f96bd2e4f2d88a8dd4ae8718e6e8c2).
-2025-04-07 13:42:25,033 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
-2025-04-07 13:42:25,246 - TournamentBot - INFO - Synced 0 commands
-2025-04-07 13:45:46,757 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:52:50,655 - discord.ui.view - ERROR - Ignoring exception in view <SittingOutView timeout=None children=1> for item <SittingOutButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Baka' emoji=None row=None sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 13:45:56,543 - discord.ui.view - ERROR - Ignoring exception in view <GlobalControlView timeout=None children=1> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Next Game / Re-Check-In' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 47, in callback
+    await global_game_state.handle_selection(interaction, -1, "sitting_out", self.player_index, self.label)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:52:55,245 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P2_IRO_J' emoji=None row=0 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-          ~~~~~~~~~~~~~^^^^^^^^^^^^^
-  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 141, in __call__
-    return self.callback(self.view, interaction, self.item)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: GlobalControlView.next_game_callback() takes 2 positional arguments but 3 were given
-2025-04-07 13:46:05,004 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=1> for item <SkipMVPButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Skip MVP' emoji=None row=None sku_id=None>
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:01,471 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P2_IRO_J' emoji=None row=0 sku_id=None>
 Traceback (most recent call last):
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 233, in callback
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:08,381 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P2_IRO_J' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:12,242 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P14_PLA_B' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:19,309 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P20_DIA_S' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:23,373 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P20_DIA_S' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:32,240 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P12_GOL_J' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:38,350 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P6_BRO_T' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:45,675 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P15_PLA_S' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 76, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 718, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:50,941 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 778, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 731, in toggle_swap_mode
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:53:58,261 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 778, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 731, in toggle_swap_mode
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:54:02,179 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Finalize Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 804, in finalize_button
+    await self.global_state.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 05:56:31,688 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:56:31,690 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:56:31,690 - discord.client - INFO - logging in using static token
+2025-04-14 05:56:32,333 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a235322630d0ed737130605586a0b1ce).
+2025-04-14 05:56:34,344 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:56:34,776 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:59:18,492 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 05:59:18,493 - TournamentBot - INFO - Starting bot...
+2025-04-14 05:59:18,493 - discord.client - INFO - logging in using static token
+2025-04-14 05:59:19,143 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6dc788367aa7acb83101afb67ba0bc25).
+2025-04-14 05:59:21,173 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 05:59:21,341 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 05:59:32,270 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase1View timeout=None children=2> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='Start Game' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 700, in start_game_callback
+    message = await interaction.channel.send(embed=embed, view=view)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\abc.py", line 1618, in send
+    data = await state.http.send_message(channel.id, params=params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\http.py", line 758, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In components.0.components.1.custom_id: Component custom id cannot be duplicated
+2025-04-14 05:59:41,880 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase1View timeout=None children=2> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='Start Game' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 700, in start_game_callback
+    message = await interaction.channel.send(embed=embed, view=view)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\abc.py", line 1618, in send
+    data = await state.http.send_message(channel.id, params=params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\http.py", line 758, in request
+    raise HTTPException(response, data)
+discord.errors.HTTPException: 400 Bad Request (error code: 50035): Invalid Form Body
+In components.0.components.1.custom_id: Component custom id cannot be duplicated
+2025-04-14 06:00:37,524 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:00:37,525 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:00:37,526 - discord.client - INFO - logging in using static token
+2025-04-14 06:00:38,238 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f1724bb0abd815cd05e471688f1ff9ab).
+2025-04-14 06:00:40,256 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:00:40,556 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:02:37,662 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:02:37,663 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:02:37,664 - discord.client - INFO - logging in using static token
+2025-04-14 06:02:38,288 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f60fe2765bb1beae129f75f84e4911bf).
+2025-04-14 06:02:40,306 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:02:40,647 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:04:55,042 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:04:55,043 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:04:55,044 - discord.client - INFO - logging in using static token
+2025-04-14 06:04:55,530 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 1d119ea02fcba94752a8c963c7d6e35c).
+2025-04-14 06:04:57,554 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:04:57,783 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:05:50,038 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:05:50,039 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:05:50,040 - discord.client - INFO - logging in using static token
+2025-04-14 06:05:50,540 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 879d19a41370800bde38bf96d1b05a7b).
+2025-04-14 06:05:52,567 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:05:52,751 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:16:12,101 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:16:12,103 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:16:12,103 - discord.client - INFO - logging in using static token
+2025-04-14 06:16:12,585 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6f5113925366894f698a27d6b748b957).
+2025-04-14 06:16:14,602 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:16:14,810 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:16:24,112 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Finalize Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 795, in finalize_button
+    await self.global_state.public_channel.send(embed=embed)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'send'
+2025-04-14 06:16:28,553 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.primary: 1> url=None disabled=False label='Finalize Games' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 795, in finalize_button
+    await self.global_state.public_channel.send(embed=embed)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'send'
+2025-04-14 06:26:09,150 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:26:09,151 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:26:09,151 - discord.client - INFO - logging in using static token
+2025-04-14 06:26:09,662 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e8fc192ae6166f02bd1eeebc628d0668).
+2025-04-14 06:26:11,698 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:26:11,956 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:26:17,392 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 202, in force_check_in
+    await interaction.response.send_message(
+    ...<6 lines>...
+    )
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
     await adapter.create_interaction_response(
     ...<6 lines>...
@@ -145,13 +1046,168 @@ Traceback (most recent call last):
     raise NotFound(response, data)
 discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
 
-During handling of the above exception, another exception occurred:
+The above exception was the direct cause of the following exception:
 
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 06:26:23,837 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 227, in force_check_in
+    await interaction.response.defer(ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 709, in defer
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 06:26:39,407 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:26:39,408 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:26:39,409 - discord.client - INFO - logging in using static token
+2025-04-14 06:26:39,834 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: fe4e9e956876aafec31653443ada7f4f).
+2025-04-14 06:26:41,851 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:26:42,082 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:33:34,885 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:33:34,886 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:33:34,887 - discord.client - INFO - logging in using static token
+2025-04-14 06:33:35,413 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 661f5c98fea609474e7cac9bcdbc8b65).
+2025-04-14 06:33:37,422 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:33:37,587 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:33:52,403 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P2_IRO_J' emoji=None row=1 sku_id=None>
 Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
     await item.callback(interaction)
-  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 262, in callback
-    await interaction.response.send_message(embed=error_embed, ephemeral=True)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 06:34:06,290 - discord.ui.view - ERROR - Ignoring exception in view <SittingOutView timeout=None children=1> for item <SittingOutButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Baka' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 46, in callback
+    await global_game_state.handle_selection(interaction, None, "sitting_out", self.player_index, self.label)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 06:34:11,731 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase2View timeout=None children=2> for item <Button style=<ButtonStyle.secondary: 2> url=None disabled=False label='Stop Swapping' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 769, in swap_button
+    await self.global_state.toggle_swap_mode(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 714, in toggle_swap_mode
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 06:34:25,889 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:34:25,890 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:34:25,891 - discord.client - INFO - logging in using static token
+2025-04-14 06:34:26,538 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: a3fd73fcb19d077c678875f2140cbbae).
+2025-04-14 06:34:28,561 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:34:28,800 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:35:19,585 - discord.ui.view - ERROR - Ignoring exception in view <GameControlView timeout=None children=10> for item <GamePlayerButton style=<ButtonStyle.danger: 4> url=None disabled=False label='P7_SIL_J' emoji=None row=1 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 75, in callback
+    await global_game_state.handle_selection(
+    ...<5 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 702, in handle_selection
+    await self.update_all_messages()
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 209, in update_all_messages
+    embed = self.generate_embed(i)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 180, in generate_embed
+    red_col1, red_col2, red_col3 = self._format_team_data(game["red"])
+                                   ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 149, in _format_team_data
+    role_prefs = ", ".join(player.get_priority_role_preference())
+                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\databaseManager.py", line 776, in get_priority_role_preference
+    for i, preference in enumerate(self.player.role_preference):
+                                   ^^^^^^^^^^^
+AttributeError: 'Player' object has no attribute 'player'
+2025-04-14 06:37:42,906 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:37:42,907 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:37:42,908 - discord.client - INFO - logging in using static token
+2025-04-14 06:37:43,438 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b76c70f45d9696442087bb9dc902c603).
+2025-04-14 06:37:45,450 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:37:45,618 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:41:36,042 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:41:36,043 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:41:36,044 - discord.client - INFO - logging in using static token
+2025-04-14 06:41:36,631 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9d6fb59ce376eddaaf50f18f9809de20).
+2025-04-14 06:41:38,660 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:41:38,871 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:41:46,253 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 217, in force_check_in
+    
+    
+    ...<6 lines>...
+                color=discord.Color.red()
+                ^
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
     await adapter.create_interaction_response(
     ...<6 lines>...
@@ -159,3 +1215,121 @@ Traceback (most recent call last):
   File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
     raise NotFound(response, data)
 discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 06:42:55,599 - discord.app_commands.tree - ERROR - Ignoring exception in command 'force_check_in'
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 858, in _do_call
+    return await self._callback(interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\commands\admin_commands.py", line 217, in force_check_in
+    
+    
+    ...<6 lines>...
+                color=discord.Color.red()
+                ^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\interactions.py", line 855, in send_message
+    await adapter.create_interaction_response(
+    ...<6 lines>...
+    )
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\webhook\async_.py", line 221, in request
+    raise NotFound(response, data)
+discord.errors.NotFound: 404 Not Found (error code: 10062): Unknown interaction
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\tree.py", line 1310, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 883, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\app_commands\commands.py", line 876, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'force_check_in' raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction
+2025-04-14 06:44:34,020 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=2> for item <MVPVoteButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Vote for MVP' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 237, in callback
+    await game_state.start_mvp_voting(interaction, self.game_index)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 328, in start_mvp_voting
+    for player in all_players:
+                  ^^^^^^^^^^^
+NameError: name 'all_players' is not defined
+2025-04-14 06:44:34,839 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=2> for item <MVPVoteButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Vote for MVP' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 237, in callback
+    await game_state.start_mvp_voting(interaction, self.game_index)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 328, in start_mvp_voting
+    for player in all_players:
+                  ^^^^^^^^^^^
+NameError: name 'all_players' is not defined
+2025-04-14 06:52:02,757 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:52:02,759 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:52:02,759 - discord.client - INFO - logging in using static token
+2025-04-14 06:52:03,269 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 4bc9bddc78fbf6d8ffbb338431118904).
+2025-04-14 06:52:05,298 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:52:05,463 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:52:49,154 - discord.ui.view - ERROR - Ignoring exception in view <GlobalPhase1View timeout=None children=2> for item <Button style=<ButtonStyle.success: 3> url=None disabled=False label='Start Game' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 686, in start_game_callback
+    embed = game_state.generate_sitting_out_embed()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GlobalGameState' object has no attribute 'generate_sitting_out_embed'
+2025-04-14 06:56:38,685 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 06:56:38,687 - TournamentBot - INFO - Starting bot...
+2025-04-14 06:56:38,688 - discord.client - INFO - logging in using static token
+2025-04-14 06:56:39,208 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9168da51b3244c7f33b2dd56c5b3e1ba).
+2025-04-14 06:56:41,235 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 06:56:41,451 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 06:57:36,034 - discord.ui.view - ERROR - Ignoring exception in view <GameMVPControlView timeout=None children=2> for item <MVPVoteButton style=<ButtonStyle.secondary: 2> url=None disabled=False label='Vote for MVP' emoji=None row=None sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 237, in callback
+    await game_state.start_mvp_voting(interaction, self.game_index)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\game\game_state.py", line 343, in start_mvp_voting
+    for player in all_players:
+                  ^^^^^^^^^^^
+NameError: name 'all_players' is not defined
+2025-04-14 07:08:29,979 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 07:08:29,980 - TournamentBot - INFO - Starting bot...
+2025-04-14 07:08:29,981 - discord.client - INFO - logging in using static token
+2025-04-14 07:08:30,552 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: b06199abbacfc82191647e642c338395).
+2025-04-14 07:08:32,568 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 07:08:32,785 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 07:09:15,008 - discord.ui.view - ERROR - Ignoring exception in view <MVPVotingView timeout=None children=5> for item <PlayerMVPButton style=<ButtonStyle.primary: 1> url=None disabled=False label='P14_PLA_B' emoji=None row=0 sku_id=None>
+Traceback (most recent call last):
+  File "C:\Coding Projects\TournamentBotKSU\.venv\Lib\site-packages\discord\ui\view.py", line 430, in _scheduled_task
+    await item.callback(interaction)
+  File "C:\Coding Projects\TournamentBotKSU\Scripts\TournamentBot\ui\game_control.py", line 475, in callback
+    await game_state.update_mvp_admin_embed(self.game_index)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GlobalGameState' object has no attribute 'update_mvp_admin_embed'
+2025-04-14 07:12:23,772 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 07:12:23,773 - TournamentBot - INFO - Starting bot...
+2025-04-14 07:12:23,774 - discord.client - INFO - logging in using static token
+2025-04-14 07:12:24,335 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e8fe030de9c8544143b5b59f39b684ae).
+2025-04-14 07:12:26,368 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 07:12:26,587 - TournamentBot - INFO - Synced 0 commands
+2025-04-14 07:19:28,141 - discord.client - WARNING - PyNaCl is not installed, voice will NOT be supported
+2025-04-14 07:19:28,142 - TournamentBot - INFO - Starting bot...
+2025-04-14 07:19:28,143 - discord.client - INFO - logging in using static token
+2025-04-14 07:19:28,835 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: e410d636be87794e1ceb54c4e8bef03d).
+2025-04-14 07:19:30,839 - TournamentBot - INFO - Logged in as Team 3 - Tournament Bot#1540 (ID: 1334671496466927677)
+2025-04-14 07:19:31,132 - TournamentBot - INFO - Synced 0 commands

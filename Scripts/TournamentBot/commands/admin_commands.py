@@ -20,6 +20,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from ..utils import helpers
 from ..ui.check_in import StartGameView
 
+import databaseManager
+
 def setup_admin_commands(bot, MY_GUILD):
     """
     Set up admin commands for the bot.
@@ -144,7 +146,31 @@ def setup_admin_commands(bot, MY_GUILD):
         view = StartGameView(interaction.user.id)
         main_module.current_checkin_view = view
         
+        # Send the check-in view to the current channel
         await interaction.response.send_message(embed=embed, view=view)
+        
+        # Store the channel where check-in is happening
+        view.channel = interaction.channel
+        
+        # Create and send Phase 1 Global Controls to the admin channel
+        # Import the necessary view
+        from ..ui.game_control import GlobalPhasedControlView
+        
+        # Create Phase 1 view (Start Game / Cancel Game)
+        phase1_view = GlobalPhasedControlView.create_phase1_view()
+        
+        # Create embed for global controls
+        gc_embed = discord.Embed(
+            title="Global Controls (Game Setup)",
+            description="Click 'Start Game' to begin the game session or 'Cancel Game' to cancel.",
+            color=discord.Color.blue()
+        )
+        
+        # Send global controls message to admin channel
+        await admin_channel.send(
+            embed=gc_embed,
+            view=phase1_view
+        )
 
     @bot.tree.command(
         name="force_check_in",
@@ -229,9 +255,33 @@ def setup_admin_commands(bot, MY_GUILD):
                 value="\n".join(user_list),
                 inline=False
             )
-        
         # Send the check-in message
         message = await interaction.channel.send(embed=embed, view=view)
+        
+        # Store the channel where check-in is happening
+        view.channel = interaction.channel
+        
+        
+        # Create and send Phase 1 Global Controls to the admin channel
+        # Import the necessary view
+        from ..ui.game_control import GlobalPhasedControlView
+        
+        # Create Phase 1 view (Start Game / Cancel Game)
+        phase1_view = GlobalPhasedControlView.create_phase1_view()
+        
+        # Create embed for global controls
+        gc_embed = discord.Embed(
+            title="Global Controls (Game Setup)",
+            description="Click 'Start Game' to begin the game session or 'Cancel Game' to cancel.",
+            color=discord.Color.blue()
+        )
+        
+        # Send global controls message to admin channel
+        admin_channel = interaction.guild.get_channel(int(admin_channel_id))
+        await admin_channel.send(
+            embed=gc_embed,
+            view=phase1_view
+        )
         
         await interaction.followup.send(
             embed=discord.Embed(
@@ -241,3 +291,37 @@ def setup_admin_commands(bot, MY_GUILD):
             ),
             ephemeral=True
         )
+    
+    @bot.tree.command(
+        name="toxicity",
+        description="Update the toxicity points of a user based on their Discord ID",
+        guild=MY_GUILD
+    )
+    async def update_toxicity_command(interaction: discord.Interaction, discord_id: str):
+        """
+        Updates toxicity points for a player based on their Discord ID.
+        
+        Args:
+            interaction: Discord interaction
+            discord_id: Discord ID of the player to update toxicity for
+        """
+        # Check if user has admin permissions
+        if not helpers.has_admin_permission(interaction.user):
+            await interaction.response.send_message(
+                "You don't have permission to use this command.",
+                ephemeral=True
+            )
+            return
+            
+        success = await databaseManager.update_toxicity_by_id(discord_id)
+        
+        if success:
+            await interaction.response.send_message(
+                f"Toxicity points updated for Discord ID: {discord_id}",
+                ephemeral=True
+            )
+        else:
+            await interaction.response.send_message(
+                f"Failed to update toxicity for Discord ID: {discord_id}. User not found.",
+                ephemeral=True
+            )
