@@ -24,7 +24,7 @@ The template files, “PlayerStats.xlsx” and “main_db.db”, are included in
 
 ## Setting Up Riot API Key 
 
-Visit the ![Riot Games developer portal](https://developer.riotgames.com/) and make an account. Click “Register Product” and “Register Product” under “Personal API Key”. Agree with the ToS, give a name and description of what you’re using the key for, then submit the request for the key. 
+Visit the [Riot Games developer portal](https://developer.riotgames.com/) and make an account. Click “Register Product” and “Register Product” under “Personal API Key”. Agree with the ToS, give a name and description of what you’re using the key for, then submit the request for the key. 
 
 Click your username in the top-right corner, click “Apps” in the drop-down menu, and should see the app listed somewhere in the dark column. Select this, and you will see a “General Info” section containing the status of your registration and an API key beginning with “RGAPI”. Copy this into “RIOT_API_KEY” in the .env file. 
 
@@ -32,7 +32,7 @@ Click your username in the top-right corner, click “Apps” in the drop-down m
 
 Install the dependencies by running the following command in the same directory as the bot’s files:
 ```
-pip3 install -r requirements.txt. 
+pip3 install -r requirements.txt
 ```
 This will download libraries that allow the program to work. 
 
