@@ -81,26 +81,26 @@ If successful, you should see the bot turning its status to online or confirming
 
   On a Check In List, the Check In, Leave and Volunteer sometimes do not get disabled when they are no longer needed 
 
-Left to be Developed 
+# Left to be Developed 
 
   -Finish implementation of Docker support 
   -Add support for other games. (Riot Games’ other titles: Valorant or Teamfight Tactics) 
   -Proper command to export data from the database to Google Sheets 
 
-Potential Issues 
+# Potential Issues 
   The matchmaking algorithm has issues balancing with the primary role preferences in mind. The algorithm has trouble prioritizing player role preferences and decides to be optimized for their secondary or tertiary roles. 
 
   Riot Games API key has problems with not being able to operate under KSU Wi-Fi. 
 
   Riot Games API key needs to be regenerated every 24 hours.  
 
-How to Use Bot 
+# How to Use Bot 
 
-/link and /rolepreference 
+## /link and /rolepreference 
 
 Players will be required to link their Riot ID with the /link command and set their role preference with /rolepreference command. If they do not, they cannot check in and will be prompted to do these actions. 
 
-Check In Process 
+## Check In Process 
 
 Once the player has done both actions, they will be able to participate in the tournament games and can interact with the “Check In” and “Leave” buttons. 
 
@@ -108,7 +108,7 @@ Players can also use the “Volunteer” button to sit out. Players who do volun
 
 Admins can proceed to creating games when there are at least 10 players in the queue with the “Start” button. Admins can also cancel games with the “Cancel” button. 
 
-Matchmaking Process 
+## Matchmaking Process 
 
 In the admin channel, two teams will be generated per game and will assign players their lane matchup.  
 
@@ -116,7 +116,7 @@ Admins are allowed to use the swap functionality with the “Swap” button whic
 
 Once the admins are satisfied with the teams, they can use the “Finalize Games” button to start the matches, and it will post an embed to the player channel with the matchmade teams. 
 
-Post Game Interactions 
+## Post Game Interactions 
 
 If a player were to have bad behavior, admins can use the /toxicity command to give that player a “toxicity” point. 
 
@@ -126,22 +126,22 @@ Admins can use the “Next Game / Re-Check-In” button to start the games again
 
 The tournament process keeps going until the “Cancel” button gets clicked in check-in. 
 
-Player Permissions 
+# Player Permissions 
 
-Player Commands 
+## Player Commands 
 
   -/link: Allow players to connect their Riot ID with their Discord account 
   -/unlink: Allow players to disconnect their Riot ID with their Discord account 
   -/stats: Displays player statistics with an embed. 
   -/rolepreference: Allow players to set their role preferences.  
 
-Player Privileges 
+## Player Privileges 
   -Check In Button: Players can interact with this button to be added to a list of players. 
   -Leave Button: Players can interact with this button to leave the list. 
   -Volunteer Button: Players can interact with this button to volunteer to sit out. 
   -MVP voting: Players can vote who they think is the MVP of a game. 
 
-Matchmaking Algorithm 
+# Matchmaking Algorithm 
 
 First will take in a player list of x size, which will then sort each player in descending order from highest rank. It will then split the list into groups of 10 based on those ranks.  
 
