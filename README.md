@@ -6,7 +6,7 @@ Download the contents of the GitHub repository and locate “.env.template” fi
 
 ## Generating the Discord Bot Token 
 
-Open Discord Developer Portal and create a new application. 
+Open [Discord Developer Portal](https://discord.com/developers/applications) and create a new application. 
 
 Click the “Bot” tab on the left and click “Reset Token”.  
 
