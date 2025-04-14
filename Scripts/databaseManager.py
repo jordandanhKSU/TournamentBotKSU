@@ -5,6 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 import discord
 import aiohttp
 import asyncio
+import pandas as pd
 
 load_dotenv(find_dotenv())
 DB_PATH = os.getenv('DB_PATH')
@@ -57,44 +58,26 @@ async def initialize_database():
         
         await conn.commit()
 
-def update_excel(discord_id, player_data):
+async def update_excel(filename=SPREADSHEET_PATH):
     try:
-        # Load the workbook and get the correct sheet
-        workbook = load_workbook(SPREADSHEET_PATH)
-        sheet_name = 'PlayerStats'
-        if sheet_name in workbook.sheetnames:
-            sheet = workbook[sheet_name]
-        else:
-            raise ValueError(f'Sheet {sheet_name} does not exist in the workbook')
-
-        # Check if the player already exists in the sheet
-        found = False
-        for row in sheet.iter_rows(min_row=2):  # Assuming the first row is headers
-            if str(row[0].value) == discord_id:  # Check if Discord ID matches
-                # Update only if there's a difference
-                for idx, key in enumerate(player_data.keys()):
-                    if row[idx].value != player_data[key]:
-                        row[idx].value = player_data[key]
-                        found = True
-                break
-
-        # If player not found, add a new row
-        if not found:
-            # Find the first truly empty row, ignoring formatting
-            empty_row_idx = sheet.max_row + 1
-            for i, row in enumerate(sheet.iter_rows(min_row=2), start=2):
-                if all(cell.value is None for cell in row):
-                    empty_row_idx = i
-                    break
-
-            # Insert the new data into the empty row
-            for idx, key in enumerate(player_data.keys(), start=1):
-                sheet.cell(row=empty_row_idx, column=idx).value = player_data[key]
-
-        # Save the workbook after updates
-        workbook.save(SPREADSHEET_PATH)
-        print(f"Spreadsheet '{SPREADSHEET_PATH}' has been updated successfully.")
-
+        async with aiosqlite.connect(DB_PATH) as conn:
+            # Export PlayerStats
+            async with conn.execute("SELECT * FROM PlayerStats") as cursor:
+                stats_columns = [description[0] for description in cursor.description]
+                stats_rows = await cursor.fetchall()
+                stats_df = pd.DataFrame(stats_rows, columns=stats_columns)
+            
+            # Export PlayerMatches
+            async with conn.execute("SELECT * FROM PlayerMatches") as cursor:
+                matches_columns = [description[0] for description in cursor.description]
+                matches_rows = await cursor.fetchall()
+                matches_df = pd.DataFrame(matches_rows, columns=matches_columns)
+        
+        with pd.ExcelWriter(filename) as writer:
+            stats_df.to_excel(writer, sheet_name="PlayerStats", index=False)
+            matches_df.to_excel(writer, sheet_name="PlayerMatches", index=False)
+        
+        return f"Database exported successfully to {filename}."
     except Exception as e:
         print(f"Error updating Excel file: {e}")
 
