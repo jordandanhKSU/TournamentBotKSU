@@ -88,7 +88,11 @@ If successful, you should see the bot turning its status to online or confirming
 
 ## /link and /rolepreference 
 
-Players will be required to link their Riot ID with the /link command and set their role preference with /rolepreference command. If they do not, they cannot check in and will be prompted to do these actions. 
+Players will be required to link their Riot ID with the /link command and set their role preference with /rolepreference command. If they do not, they cannot check in and will be prompted to do these actions.
+
+## Create an admin channel
+
+Admins must create an admin channel to use the /createadminchannel command to operate the bot
 
 ## Check In Process 
 
